@@ -1,0 +1,307 @@
+-- :: SERVIÇOS ::
+local RobloxReplicatedStorage = cloneref(game:GetService('RobloxReplicatedStorage'))
+local RbxAnalyticsService = cloneref(game:GetService('RbxAnalyticsService'))
+local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
+local UserInputService = cloneref(game:GetService('UserInputService'))
+local NetworkClient = cloneref(game:GetService("NetworkClient"))
+local TweenService = cloneref(game:GetService('TweenService'))
+local VirtualUser = cloneref(game:GetService('VirtualUser'))
+local HttpService = cloneref(game:GetService('HttpService'))
+local RunService = cloneref(game:GetService('RunService'))
+local LogService = cloneref(game:GetService('LogService'))
+local Lighting = cloneref(game:GetService('Lighting'))
+local CoreGui = cloneref(game:GetService('CoreGui'))
+local Players = cloneref(game:GetService('Players'))
+local Debris = cloneref(game:GetService('Debris'))
+local Stats = cloneref(game:GetService('Stats'))
+local CollectionService = game:GetService("CollectionService")
+local VirtualInputManager = cloneref(game:GetService("VirtualInputManager"))
+local Workspace = cloneref(game:GetService('Workspace'))
+local ContentProvider = cloneref(game:GetService("ContentProvider"))
+local TeleportService = game:GetService("TeleportService")
+
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local Mouse = LocalPlayer:GetMouse()
+
+local ballDamagedConnection = nil
+local ballExplodeConnection = nil
+
+local function blockRemotes()
+    local remotes = game:GetService("ReplicatedStorage"):FindFirstChild("Remotes")
+    if not remotes then return end
+
+    
+    local ballDamaged = remotes:FindFirstChild("BallDamaged")
+    if ballDamaged then
+        if ballDamaged:IsA("RemoteEvent") then
+            ballDamagedConnection = ballDamaged.OnClientEvent:Connect(function()
+                if PastedSources then
+                    return 
+                end
+            end)
+        end
+        if ballDamaged:IsA("RemoteFunction") then
+            ballDamaged.OnClientInvoke = function(...)
+                if PastedSources then
+                    return false
+                end
+                return
+            end
+        end
+    end
+
+
+    local ballExplode = remotes:FindFirstChild("BallExplode")
+    if ballExplode then
+        if ballExplode:IsA("RemoteEvent") then
+            ballExplodeConnection = ballExplode.OnClientEvent:Connect(function()
+                if PastedSources then
+                    return
+                end
+            end)
+        end
+        if ballExplode:IsA("RemoteFunction") then
+            ballExplode.OnClientInvoke = function(...)
+                if PastedSources then
+                    return false
+                end
+                return
+            end
+        end
+    end
+end
+
+local function addForceField()
+    local character = LocalPlayer.Character
+    if character and not character:FindFirstChild("ForceField") then
+        local forceField = Instance.new("ForceField")
+        forceField.Parent = character
+    end
+end
+
+local function removeForceField()
+    local character = LocalPlayer.Character
+    if character then
+        local forceField = character:FindFirstChild("ForceField")
+        if forceField then
+            forceField:Destroy()
+        end
+    end
+end
+
+function get_ball()
+    for _, ball in workspace.Balls:GetChildren() do
+        if not ball:GetAttribute("realBall") then
+            return ball
+        end
+    end
+end
+
+
+
+LocalPlayer.CharacterAdded:Connect(function(character)
+        character.HumanoidRootPart.CanCollide = false
+        character.Humanoid.PlatformStand = false
+        character.Humanoid.WalkSpeed = 16 or character.Humanoid.WalkSpeed    
+end)
+
+-- :: MARCA D'ÁGUA UI ::
+local screenGui = Instance.new("ScreenGui", PlayerGui)
+screenGui.Name = "RiverSpoofUI"
+screenGui.ResetOnSpawn = false
+screenGui.IgnoreGuiInset = true
+
+local watermark = Instance.new("TextLabel", screenGui)
+watermark.Text = "River Imortality"
+watermark.Size = UDim2.new(1, 0, 0.05, 0)
+watermark.Position = UDim2.new(0, 0, 0.01, 0)
+watermark.BackgroundTransparency = 1
+watermark.TextScaled = true
+watermark.Font = Enum.Font.GothamBlack
+watermark.TextStrokeTransparency = 0.3
+watermark.ZIndex = 10
+
+RunService.RenderStepped:Connect(function()
+	local t = tick() * 2
+	local c = Color3.fromRGB(
+		100 + math.sin(t) * 100,
+		0,
+		150 + math.cos(t) * 100
+	)
+	watermark.TextColor3 = c
+end)
+
+-- :: UI TOGGLE ::
+local ToggleKey = Enum.KeyCode.G
+local TeleportKey = Enum.KeyCode.Equals
+local isActive = false
+local PastedSources = false
+
+local gui = Instance.new("ScreenGui", PlayerGui)
+gui.ResetOnSpawn = false
+gui.Name = "ToggleGui"
+
+local frame = Instance.new("TextButton")
+frame.Size = UDim2.new(0, 140, 0, 50)
+frame.Position = UDim2.new(0.5, -70, 0.3, 0)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.BorderSizePixel = 0
+frame.BackgroundTransparency = 0.1
+frame.AnchorPoint = Vector2.new(0.5, 0)
+frame.Name = "ToggleFrame"
+frame.Parent = gui
+frame.Text = ""
+frame.AutoButtonColor = false
+frame.Active = true
+frame.Draggable = true
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 12)
+corner.Parent = frame
+
+local label = Instance.new("TextLabel")
+label.Size = UDim2.new(1, 0, 1, 0)
+label.BackgroundTransparency = 1
+label.Text = "disabled ❌"
+label.TextColor3 = Color3.fromRGB(255, 0, 0)
+label.Font = Enum.Font.GothamBold
+label.TextSize = 18
+label.Parent = frame
+
+local function toggle()
+    isActive = not isActive
+    PastedSources = isActive
+
+    if isActive then
+        label.Text = "enabled ✅"
+        label.TextColor3 = Color3.fromRGB(0, 255, 0)
+        addForceField()
+        blockRemotes() -- Panggil ulang untuk memastikan blokir aktif
+    else
+        label.Text = "disabled ❌"
+        label.TextColor3 = Color3.fromRGB(255, 0, 0)
+        removeForceField()
+        
+        if ballDamagedConnection then
+            ballDamagedConnection:Disconnect()
+            ballDamagedConnection = nil
+        end
+        if ballExplodeConnection then
+            ballExplodeConnection:Disconnect()
+            ballExplodeConnection = nil
+        end
+    end
+end
+
+
+frame.MouseButton1Click:Connect(toggle)
+
+-- :: RANDOMIZADORES ::
+local function RandomNumberRange(min, max) 
+	return math.random(min or 1e9, max or 9e90) 
+end
+local function RandomVectorRange() 
+	return Vector3.new(RandomNumberRange(), RandomNumberRange(), RandomNumberRange()) 
+end
+
+-- :: DESYNC SPOOF ::
+local DesyncTypes = {}
+
+RunService.Stepped:Connect(function()
+	if PastedSources and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+		pcall(function()
+			LocalPlayer.Character.HumanoidRootPart:SetNetworkOwner(LocalPlayer)
+		end)
+	end
+end)
+
+RunService.Heartbeat:Connect(function()
+    if PastedSources and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local rootPart = LocalPlayer.Character.HumanoidRootPart
+        DesyncTypes[1] = rootPart.CFrame
+        DesyncTypes[2] = rootPart.AssemblyLinearVelocity
+
+        local ball = get_ball()
+        local velocity = Vector3.new(0, 0, 0)
+        local speed = 0
+
+        
+        if ball then
+            local zoomies = ball:FindFirstChild("zoomies")
+            if zoomies then
+                velocity = zoomies.VectorVelocity or Vector3.new(0, 0, 0)
+            else
+                velocity = ball.AssemblyLinearVelocity or Vector3.new(0, 0, 0)
+            end
+            speed = velocity.Magnitude
+        end
+
+        local SpoofThis = DesyncTypes[1] * CFrame.Angles(
+            math.rad(RandomNumberRange(0)),
+            math.rad(RandomNumberRange(0)),
+            math.rad(RandomNumberRange(0.1))
+        )
+
+        local ping = Stats.Network.ServerStatsItem["Data Ping"]:GetValue() / 100
+
+        rootPart.CFrame = SpoofThis
+        rootPart.AssemblyLinearVelocity = Vector3.new(0, 0.8, 0) * 5000 * (ping + speed)
+
+        RunService.RenderStepped:Wait()
+
+        rootPart.CFrame = DesyncTypes[1]
+        rootPart.AssemblyLinearVelocity = DesyncTypes[2]
+    end
+end)
+
+-- :: HOOKS: INDEX & NAMECALL & NEWINDEX ::
+local oldIndex
+oldIndex = hookmetamethod(game, "__index", newcclosure(function(self, key)
+	if PastedSources and not checkcaller() then
+		if key == "CFrame" and self == LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+			return DesyncTypes[1] or CFrame.new()
+		end
+	end
+	return oldIndex(self, key)
+end))
+
+local oldNewIndex
+oldNewIndex = hookmetamethod(game, "__newindex", newcclosure(function(self, key, value)
+	if PastedSources and not checkcaller() then
+		if self == LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+			if key == "CFrame" or key == "Position" or key == "AssemblyLinearVelocity" then
+				return
+			end
+		end
+	end
+	return oldNewIndex(self, key, value)
+end))
+
+local oldNamecall
+oldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
+	local method = getnamecallmethod()
+	local args = {...}
+
+	if PastedSources and not checkcaller() then
+		if method == "Create" and self == TweenService then
+			local target = args[1]
+			if target == LocalPlayer.Character or (target and target:IsDescendantOf(LocalPlayer.Character)) then
+				return {
+					Play = function() end,
+					Cancel = function() end,
+					Pause = function() end,
+					Completed = Instance.new("BindableEvent").Event
+				}
+			end
+		end
+
+		if (method == "MoveTo" or method == "SetPrimaryPartCFrame") and self == LocalPlayer.Character then
+			return nil
+		end
+	end
+
+	return oldNamecall(self, ...)
+end))
+
+blockRemotes()
