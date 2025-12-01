@@ -150,25 +150,8 @@ local function setSword()
     if not getgenv().skinChanger then return end
     
     local success, err = pcall(function()
-        -- SOLUSI: Panggil langsung internal function tanpa validasi
-        local swordData = swordInstances:GetSword(getgenv().swordModel)
-        if swordData then
-            -- Set attributes langsung
-            plr.Character:SetAttribute("CurrentlyEquippedSword", getgenv().swordModel)
-            plr.Character:SetAttribute("SwordData", swordData)
-            
-            -- Update sword controller
-            if swordsController and swordsController.SetSword then
-                swordsController:SetSword(getgenv().swordAnimations)
-            end
-            
-            -- Spawn sword model manually
-            local swordModel = swordData.Model:Clone()
-            swordModel.Name = getgenv().swordModel
-            swordModel.Parent = plr.Character
-            
-            print("✅ Sword equipped manually:", getgenv().swordModel)
-        end
+        -- SOLUSI: Gunakan remote yang memanggil EquipSwordTo dari server side
+        game:GetService("ReplicatedStorage").Remotes.EquipSword:FireServer(getgenv().swordModel)
     end)
     
     if not success then
