@@ -151,7 +151,7 @@ local function setSword()
     
     local success, err = pcall(function()
         -- SOLUSI: Gunakan remote yang memanggil EquipSwordTo dari server side
-        game:GetService("ReplicatedStorage").Remotes.EquipSword:FireServer(getgenv().swordModel)
+        game:GetService("ReplicatedStorage").Remotes.EquipSwordTo:FireServer(getgenv().swordModel)
     end)
     
     if not success then
