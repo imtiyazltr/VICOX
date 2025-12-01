@@ -150,73 +150,69 @@ local function setSword()
     if not getgenv().skinChanger then return end
     
     local success, err = pcall(function()
-        -- Bypass server checks
-        setupvalue(rawget(swordInstances, "EquipSwordTo"), 3, false) -- Server check
-        setupvalue(rawget(swordInstances, "EquipSwordTo"), 5, true)  -- Additional bypass
+        -- === PATCH 1: BYPASS SERVER CHECKS ===
+        setupvalue(rawget(swordInstances, "EquipSwordTo"), 3, false)
+        setupvalue(rawget(swordInstances, "EquipSwordTo"), 5, true)
         
-        -- Hook FireClient/InvokeClient before equipping
-        local oldFireClient
-        local oldInvokeClient
-        
-        for _, remote in pairs(rs:GetDescendants()) do
-            if remote:IsA("RemoteEvent") and remote.Name:find("Sword") then
-                local mt = getrawmetatable(remote)
-                setreadonly(mt, false)
-                oldFireClient = mt.__namecall
-                mt.__namecall = newcclosure(function(self, ...)
-                    local method = getnamecallmethod()
-                    if method == "FireClient" or method == "FireAllClients" then
-                        return -- Block FireClient calls
+        -- === PATCH 2: USE NET PACKAGE (SAFE METHOD) ===
+        local netFolder = rs:FindFirstChild("Packages")
+        if netFolder then
+            netFolder = netFolder:FindFirstChild("_Index")
+            if netFolder then
+                netFolder = netFolder:FindFirstChild("sleitnick_net@0.1.0")
+                if netFolder then
+                    netFolder = netFolder:FindFirstChild("net")
+                    if netFolder then
+                        local requestEquipSword = netFolder:FindFirstChild("RF/RequestEquipSword")
+                        if requestEquipSword and requestEquipSword:IsA("RemoteFunction") then
+                            -- Use official remote (safest)
+                            local result = requestEquipSword:InvokeServer(getgenv().swordModel)
+                            if result then
+                                swordsController:SetSword(getgenv().swordAnimations)
+                                return
+                            end
+                        end
                     end
-                    return oldFireClient(self, ...)
-                end)
-                setreadonly(mt, true)
-            elseif remote:IsA("RemoteFunction") and remote.Name:find("Sword") then
-                local mt = getrawmetatable(remote)
-                setreadonly(mt, false)
-                oldInvokeClient = mt.__namecall
-                mt.__namecall = newcclosure(function(self, ...)
-                    local method = getnamecallmethod()
-                    if method == "InvokeClient" then
-                        return -- Block InvokeClient calls
-                    end
-                    return oldInvokeClient(self, ...)
-                end)
-                setreadonly(mt, true)
-            end
-        end
-        
-        -- Equip sword
-        swordInstances:EquipSwordTo(plr.Character, getgenv().swordModel)
-        swordsController:SetSword(getgenv().swordAnimations)
-        
-        -- Restore hooks
-        task.wait(0.5)
-        for _, remote in pairs(rs:GetDescendants()) do
-            if remote:IsA("RemoteEvent") or remote:IsA("RemoteFunction") then
-                local mt = getrawmetatable(remote)
-                if mt.__namecall ~= oldFireClient and oldFireClient then
-                    setreadonly(mt, false)
-                    mt.__namecall = oldFireClient
-                    setreadonly(mt, true)
                 end
             end
         end
+        
+        -- === PATCH 3: FALLBACK TO DIRECT EQUIP (IF NET FAILS) ===
+        -- Temporarily disable FireClient
+        local oldIndex
+        local mt = getrawmetatable(game)
+        setreadonly(mt, false)
+        oldIndex = mt.__namecall
+        
+        mt.__namecall = newcclosure(function(self, ...)
+            local method = getnamecallmethod()
+            if (method == "FireClient" or method == "InvokeClient") and tostring(self):find("Sword") then
+                return wait(9e9) -- Block forever
+            end
+            return oldIndex(self, ...)
+        end)
+        
+        setreadonly(mt, true)
+        
+        -- Equip with protection
+        task.spawn(function()
+            swordInstances:EquipSwordTo(plr.Character, getgenv().swordModel)
+            swordsController:SetSword(getgenv().swordAnimations)
+        end)
+        
+        -- Restore after 1 second
+        task.wait(1)
+        setreadonly(mt, false)
+        mt.__namecall = oldIndex
+        setreadonly(mt, true)
     end)
     
     if not success then
         WindUI:Notify({
             Title = "Skin Changer Error",
-            Content = "Failed to set sword: " .. tostring(err),
+            Content = tostring(err):sub(1, 100),
             Duration = 5,
             Icon = "alert-triangle"
-        })
-    else
-        WindUI:Notify({
-            Title = "Skin Changer",
-            Content = "Sword equipped: " .. getgenv().swordModel,
-            Duration = 3,
-            Icon = "check"
         })
     end
 end
