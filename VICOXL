@@ -151,11 +151,18 @@ local function setSword()
     
     local success, err = pcall(function()
         
-        game:GetService("ReplicatedStorage").Remotes.SetSword:FireServer(getgenv().swordModel)
+        plr:SetAttribute("CurrentlyEquippedSword", getgenv().swordModel)
+        
+        -- Trigger update visual
+        if swordsController then
+            swordsController.CurrentSword = getgenv().swordModel
+            swordsController:UpdateSword()
+        end
     end)
+    
     if not success then
         WindUI:Notify({
-            Title = "Skin Changer Error",
+            Title = "Skin Changer Error", 
             Content = "Failed to set sword: " .. tostring(err),
             Duration = 5,
             Icon = "alert-triangle"
