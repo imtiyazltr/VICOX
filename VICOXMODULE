@@ -147,13 +147,18 @@ local function getSlashName(swordName)
 end
 
 local function setSword()
+local function setSword()
     if not getgenv().skinChanger then return end
     
     local success, err = pcall(function()
-        setupvalue(rawget(swordInstances, "EquipSwordTo"), 8, false)
+        -- GANTI INI: index 3 bukan 2, dan mungkin juga index 5
+        setupvalue(rawget(swordInstances, "EquipSwordTo"), 3, false)  -- ⬅️ INDEX 3!
+        setupvalue(rawget(swordInstances, "EquipSwordTo"), 5, false)  -- ⬅️ INDEX 5 juga!
+        
         swordInstances:EquipSwordTo(plr.Character, getgenv().swordModel)
         swordsController:SetSword(getgenv().swordAnimations)
     end)
+    
     if not success then
         WindUI:Notify({
             Title = "Skin Changer Error",
