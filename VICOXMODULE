@@ -150,19 +150,28 @@ local function setSword()
     if not getgenv().skinChanger then return end
     
     local success, err = pcall(function()
-        -- Simpan fungsi asli
-        local originalGetPlayer = swordInstances.GetPlayerFromCharacter
-        
-        -- Override dengan fungsi yang selalu return player kita
-        swordInstances.GetPlayerFromCharacter = function(character)
-            return plr
+        -- Cari fungsi EquipSwordTo di dalam module
+        for _, func in pairs(getgc()) do
+            if type(func) == "function" and islclosure(func) then
+                local info = getinfo(func)
+                if info.name == "EquipSwordTo" then
+                    -- Cari upvalue yang berisi GetPlayerFromCharacter
+                    local upvalues = getupvalues(func)
+                    for i, upval in ipairs(upvalues) do
+                        if type(upval) == "function" and getinfo(upval).name == "GetPlayerFromCharacter" then
+                            -- Replace dengan fungsi custom
+                            setupvalue(func, i, function(character)
+                                return plr
+                            end)
+                            break
+                        end
+                    end
+                end
+            end
         end
         
-        -- Panggil EquipSwordTo
+        -- Sekarang panggil EquipSwordTo
         swordInstances:EquipSwordTo(plr.Character, getgenv().swordModel)
-        
-        -- Restore fungsi asli
-        swordInstances.GetPlayerFromCharacter = originalGetPlayer
     end)
     
     if not success then
