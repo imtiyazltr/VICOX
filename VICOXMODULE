@@ -150,28 +150,25 @@ local function setSword()
     if not getgenv().skinChanger then return end
     
     local success, err = pcall(function()
-        -- Cari fungsi EquipSwordTo di dalam module
-        for _, func in pairs(getgc()) do
-            if type(func) == "function" and islclosure(func) then
-                local info = getinfo(func)
-                if info.name == "EquipSwordTo" then
-                    -- Cari upvalue yang berisi GetPlayerFromCharacter
-                    local upvalues = getupvalues(func)
-                    for i, upval in ipairs(upvalues) do
-                        if type(upval) == "function" and getinfo(upval).name == "GetPlayerFromCharacter" then
-                            -- Replace dengan fungsi custom
-                            setupvalue(func, i, function(character)
-                                return plr
-                            end)
-                            break
-                        end
-                    end
-                end
+        -- SOLUSI: Panggil langsung internal function tanpa validasi
+        local swordData = swordInstances:GetSword(getgenv().swordModel)
+        if swordData then
+            -- Set attributes langsung
+            plr.Character:SetAttribute("CurrentlyEquippedSword", getgenv().swordModel)
+            plr.Character:SetAttribute("SwordData", swordData)
+            
+            -- Update sword controller
+            if swordsController and swordsController.SetSword then
+                swordsController:SetSword(getgenv().swordAnimations)
             end
+            
+            -- Spawn sword model manually
+            local swordModel = swordData.Model:Clone()
+            swordModel.Name = getgenv().swordModel
+            swordModel.Parent = plr.Character
+            
+            print("✅ Sword equipped manually:", getgenv().swordModel)
         end
-        
-        -- Sekarang panggil EquipSwordTo
-        swordInstances:EquipSwordTo(plr.Character, getgenv().swordModel)
     end)
     
     if not success then
