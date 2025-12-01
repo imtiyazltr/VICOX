@@ -150,9 +150,8 @@ local function setSword()
     if not getgenv().skinChanger then return end
     
     local success, err = pcall(function()
-        setupvalue(rawget(swordInstances, "EquipSwordTo"), 2, false)
-        swordInstances:EquipSwordTo(plr.Character, getgenv().swordModel)
-        swordsController:SetSword(getgenv().swordAnimations)
+        
+        game:GetService("ReplicatedStorage").Remotes.SetSword:FireServer(getgenv().swordModel)
     end)
     if not success then
         WindUI:Notify({
