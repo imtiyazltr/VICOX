@@ -150,8 +150,19 @@ local function setSword()
     if not getgenv().skinChanger then return end
     
     local success, err = pcall(function()
-        -- SOLUSI 1 BARIS: Bypass GetPlayerFromCharacter validation
-        swordInstances:EquipSwordTo(plr.Character, getgenv().swordModel, true)  -- Tambahkan parameter ke-3: true untuk bypass
+        -- Simpan fungsi asli
+        local originalGetPlayer = swordInstances.GetPlayerFromCharacter
+        
+        -- Override dengan fungsi yang selalu return player kita
+        swordInstances.GetPlayerFromCharacter = function(character)
+            return plr
+        end
+        
+        -- Panggil EquipSwordTo
+        swordInstances:EquipSwordTo(plr.Character, getgenv().swordModel)
+        
+        -- Restore fungsi asli
+        swordInstances.GetPlayerFromCharacter = originalGetPlayer
     end)
     
     if not success then
@@ -163,7 +174,6 @@ local function setSword()
         })
     end
 end
-
 
 local playParryFunc
 local parrySuccessAllConnection
