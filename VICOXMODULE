@@ -149,102 +149,42 @@ end
 local function setSword()
     if not getgenv().skinChanger then return end
     
-    local success, err = pcall(function()
-        local character = plr.Character
-        if not character then 
-            warn("Character not found")
-            return 
-        end
-        
-        local humanoid = character:FindFirstChildOfClass("Humanoid")
-        if not humanoid then 
-            warn("Humanoid not found")
-            return 
-        end
-        
-        -- === STEP 1: DESTROY OLD SWORD MODELS ===
-        for _, child in pairs(character:GetChildren()) do
-            if child:IsA("Model") and child.Name ~= getgenv().swordModel then
-                child:Destroy()
-            end
-        end
-        task.wait(0.1)
-        
-        -- === STEP 2: BYPASS SERVER CHECKS ===
-        setupvalue(rawget(swordInstances, "EquipSwordTo"), 3, false)
-        setupvalue(rawget(swordInstances, "EquipSwordTo"), 5, true)
-        
-        -- === STEP 3: CHECK SWORD EXISTS ===
-        local swordData = swordInstances:GetSword(getgenv().swordModel)
-        if not swordData then
-            WindUI:Notify({
-                Title = "Skin Changer Error",
-                Content = "Sword '" .. getgenv().swordModel .. "' not found in game!",
-                Duration = 5,
-                Icon = "alert-triangle"
-            })
-            return
-        end
-        
-        -- === STEP 4: GET SWORD MODEL FROM REPLICATED STORAGE ===
-        local swordModelInstance = rs.Shared.ReplicatedInstances.Swords:FindFirstChild(getgenv().swordModel)
-        if not swordModelInstance then
-            WindUI:Notify({
-                Title = "Skin Changer Error",
-                Content = "Sword model not found in ReplicatedStorage!",
-                Duration = 5,
-                Icon = "alert-triangle"
-            })
-            return
-        end
-        
-        -- === STEP 5: CLONE AND EQUIP SWORD MANUALLY ===
-        local newSword = swordModelInstance:Clone()
-        newSword.Parent = character
-        
-        -- Weld sword to right hand
-        local rightHand = character:FindFirstChild("RightHand") or character:FindFirstChild("Right Arm")
-        if rightHand and newSword.PrimaryPart then
-            local weld = Instance.new("Weld")
-            weld.Part0 = rightHand
-            weld.Part1 = newSword.PrimaryPart
-            weld.C0 = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(0))
-            weld.Parent = newSword.PrimaryPart
-        end
-        
-        -- === STEP 6: SET SWORD ATTRIBUTE ===
-        plr:SetAttribute("CurrentlyEquippedSword", getgenv().swordModel)
-        
-        -- === STEP 7: UPDATE SWORD CONTROLLER ===
-        if swordsController and swordsController.SetSword then
-            swordsController:SetSword(getgenv().swordAnimations or getgenv().swordModel)
-        end
-        
-        -- === STEP 8: FIRE REMOTE TO SERVER (SYNC) ===
-        local fireSwordInfoRemote = rs.Remotes:FindFirstChild("FireSwordInfo")
-        if fireSwordInfoRemote then
-            fireSwordInfoRemote:FireServer(getgenv().swordModel)
-        end
-        
-        -- === STEP 9: UPDATE SLASH EFFECTS ===
-        getgenv().slashName = getSlashName(getgenv().swordFX or getgenv().swordModel)
-        
-        WindUI:Notify({
-            Title = "Skin Changer",
-            Content = "Equipped: " .. getgenv().swordModel,
-            Duration = 3,
-            Icon = "check"
-        })
-    end)
-    
-    if not success then
+    local swordName = getgenv().swordModel
+    local swordFX = getgenv().swordFX or swordName
+
+    -- Patch sword data
+    local swordData = swordInstances:GetSword(swordName)
+    if not swordData then
         WindUI:Notify({
             Title = "Skin Changer Error",
-            Content = tostring(err):sub(1, 100),
-            Duration = 5,
-            Icon = "alert-triangle"
+            Content = "Sword '" .. swordName .. "' tidak ditemukan dalam database game!",
+            Duration = 4
         })
+        return
     end
+
+    -- Ambil slash name
+    getgenv().slashName = swordInstances:GetSword(swordFX).SlashName or "SlashEffect"
+
+    -- Update controller (ini yang penting)
+    if swordsController and swordsController.SetSword then
+        swordsController:SetSword(swordName)
+    end
+
+    -- Sync remote biar server kasih efek yang benar
+    local Remote = rs.Remotes:FindFirstChild("FireSwordInfo")
+    if Remote then
+        Remote:FireServer(swordName)
+    end
+
+    -- Update attribute
+    plr:SetAttribute("CurrentlyEquippedSword", swordName)
+
+    WindUI:Notify({
+        Title = "Skin Changer",
+        Content = "Equipped: " .. swordName,
+        Duration = 3
+    })
 end
 
 
