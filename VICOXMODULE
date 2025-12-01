@@ -150,8 +150,8 @@ local function setSword()
     if not getgenv().skinChanger then return end
     
     local success, err = pcall(function()
-        -- SOLUSI 1 BARIS: Gunakan remote yang kamu temukan
-        game:GetService("ReplicatedStorage").Packages._Index["sleitnick_net@0.1.0"].net["RF/RequestEquipSword"]:InvokeServer(getgenv().swordModel)
+        -- SOLUSI 1 BARIS: Bypass GetPlayerFromCharacter validation
+        swordInstances:EquipSwordTo(plr.Character, getgenv().swordModel, true)  -- Tambahkan parameter ke-3: true untuk bypass
     end)
     
     if not success then
