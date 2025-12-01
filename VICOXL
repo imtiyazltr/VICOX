@@ -128,6 +128,16 @@ local rs = game:GetService("ReplicatedStorage")
 local swordInstancesInstance = rs:WaitForChild("Shared", 9e9):WaitForChild("ReplicatedInstances", 9e9):WaitForChild("Swords", 9e9)
 local swordInstances = require(swordInstancesInstance)
 
+-- Tambahkan error handling
+if not swordInstances or type(swordInstances) ~= "table" then
+    warn("⚠️ swordInstances not loaded properly, using fallback method")
+    swordInstances = {
+        GetSword = function(name)
+            return { SlashName = "SlashEffect" }
+        end
+    }
+end
+
 local swordsController
 while task.wait() and (not swordsController) do
     for i, v in getconnections(rs.Remotes.FireSwordInfo.OnClientEvent) do
@@ -142,15 +152,44 @@ while task.wait() and (not swordsController) do
 end
 
 local function getSlashName(swordName)
-    local slashName = swordInstances:GetSword(swordName)
-    return (slashName and slashName.SlashName) or "SlashEffect"
+    -- Coba method yang lebih reliable
+    local slashName = "SlashEffect"  -- default
+    
+    local success, result = pcall(function()
+        -- Gunakan remote untuk mendapatkan sword data
+        local swordData = swordInstances:GetSword(swordName)
+        if swordData and swordData.SlashName then
+            return swordData.SlashName
+        end
+    end)
+    
+    if success and result then
+        return result
+    end
+    
+    return slashName
 end
 
 local function setSword()
     if not getgenv().skinChanger then return end
     
-    local success, err = pcall(function()        
-        game:GetService("ReplicatedStorage").Remotes.Sword:FireServer("Equip", getgenv().swordModel)
+    local success, err = pcall(function()
+        -- SIMPAN REFERENCE UNTUK EFISIENSI
+        local net = game:GetService("ReplicatedStorage").Packages._Index["sleitnick_net@0.1.0"].net
+        
+        -- SOLUSI 1 BARIS: Invoke remote function untuk equip sword
+        net["RF/RequestEquipSword"]:InvokeServer(getgenv().swordModel)
+        
+        -- Update attribute dan controller untuk konsistensi
+        if plr.Character then
+            plr.Character:SetAttribute("CurrentlyEquippedSword", getgenv().swordModel)
+        end
+        
+        if swordsController and swordsController.SetSword then
+            swordsController:SetSword(getgenv().swordAnimations)
+        end
+        
+        print("✅ Sword changed to:", getgenv().swordModel)
     end)
     
     if not success then
@@ -207,6 +246,14 @@ table.insert(clashConnections, getconnections(rs.Remotes.ParrySuccessAll.OnClien
 getgenv().updateSword = function()
     getgenv().slashName = getSlashName(getgenv().swordFX)
     setSword()
+    
+    -- Notify user
+    WindUI:Notify({
+        Title = "Skin Changer",
+        Content = "Sword updated to: " .. getgenv().swordModel,
+        Duration = 2,
+        Icon = "sword"
+    })
 end
 
 task.spawn(function()
