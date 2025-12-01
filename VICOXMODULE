@@ -150,10 +150,10 @@ local function setSword()
     if not getgenv().skinChanger then return end
     
     local success, err = pcall(function()
-        -- SOLUSI: Gunakan remote yang memanggil EquipSwordTo dari server side
-        game:GetService("ReplicatedStorage").Remotes.EquipSwordTo:FireServer(getgenv().swordModel)
+        setupvalue(rawget(swordInstances, "EquipSwordTo"), 8, false)
+        swordInstances:EquipSwordTo(plr.Character, getgenv().swordModel)
+        swordsController:SetSword(getgenv().swordAnimations)
     end)
-    
     if not success then
         WindUI:Notify({
             Title = "Skin Changer Error",
@@ -163,6 +163,7 @@ local function setSword()
         })
     end
 end
+
 
 local playParryFunc
 local parrySuccessAllConnection
