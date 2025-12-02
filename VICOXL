@@ -44,15 +44,17 @@ local success, result = pcall(function()
     loadstring(game:GetObjects("rbxassetid://15900013841")[1].Source)()
 end)
 if not success then
-    Notification.new("error", "Error", "Bypass Not Successfully Loaded!?", true, 4)
+    Notification.new("error", "Error", "Bypass Not Successfully Loaded!?", true, 3)
 else
-    Notification.new("success", "Success", "Bypass Successfully Loaded!", true, 4)
+    Notification.new("success", "Success", "Bypass Successfully Loaded!", true, 3)
 end
+
+wait(1)
 
 Notification.new("info", "ATTENTION", "Yo User! Thanks for using my Script! ", true, 3)
 Notification.new("info", "ATTENTION", "dont expect this script good or not. ", true, 3)
-Notification.new("info", "ATTENTION", "By Rudert (SOLO DEV)", true, 2)
-Notification.new("info", "ATTENTION", "Reizo is Sigma + NonChalant + Charm + Nigger", true, 2)
+Notification.new("info", "ATTENTION", "By Rudert (SOLO DEV)", true, 3.5)
+Notification.new("info", "ATTENTION", "Reizo is Sigma + NonChalant + Charm + Nigger", true, 3.5)
 
 setfpscap(120)
 
