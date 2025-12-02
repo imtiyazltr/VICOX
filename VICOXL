@@ -937,26 +937,16 @@ local Window = WindUI:CreateWindow({
     },
 })
 
-local ConfigManager = Window.ConfigManager
+local Config = Window.ConfigManager:GetConfig("VicoX_Default")
 
-local CurrentConfigName = "VicoX_Default"
-
-
-Window.CurrentConfig = ConfigManager:Config(CurrentConfigName)
-
-
-if Window.CurrentConfig:Exists() then
-    Window.CurrentConfig:Load()
+if Window.ConfigManager:ConfigExists("VicoX_Default") then
+    Config:Load()
 end
 
+Config:SetAutoSave(true)
+Config:SetAutoLoad(true)
 
-Window.CurrentConfig:SetAutoSave(true)  
-
-Window.CurrentConfig:SetAutoLoad(true)
-
--- Custom Topbar Buttons
-Window:CreateTopbarButton("Discord", "message-square", function() setclipboard("https://discord.gg/pbUCMc8VFs") print("Discord link copied!") end, 990)
-Window:CreateTopbarButton("Toggle UI", "monitor", function() Window:ToggleTransparency(not WindUI:GetTransparency()) end, 988)
+Window.CurrentConfig = Config
 
 
 -- Custom Open Button
