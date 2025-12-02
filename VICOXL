@@ -1667,44 +1667,19 @@ function AutoParry.is_curveds()
 end
 
 local old_from_target = nil :: Model
+local last_close_contact = 0
+local in_close_contact = false
 
 function AutoParry:is_spam()
     local target = AutoParry.target.current
     local ball_properties = AutoParry.ball.properties
     local player_character = LocalPlayer.Character
-    local current_changed = AutoParry.target.current_changed
-    local direction_changed_on_cframe = AutoParry.target.direction_changed_on_cframe
-    
-    if current_changed and direction_changed_on_cframe then
-       self.parries = 0
-       return false
-    end
-    
-    if player_character and player_character.PrimaryPart and target and target.PrimaryPart and workspace.CurrentCamera then
-        local camera_cframe = workspace.CurrentCamera.CFrame
-        local camera_direction = camera_cframe.LookVector
-        local current_target_position = target.PrimaryPart.Position
-        local vector_to_current_target = (current_target_position - camera_cframe.Position).Unit
-        local dot_to_current_target = camera_direction:Dot(vector_to_current_target)
+    local ball = AutoParry.ball.ball_entity
+    local client_ball = AutoParry.ball.client_ball_entity
 
-        
-        for _, other_player in pairs(workspace.Alive:GetChildren()) do
-            if other_player ~= target and other_player ~= player_character and other_player:IsA("Model") and other_player.PrimaryPart then
-                local other_position = other_player.PrimaryPart.Position
-                local vector_to_other = (other_position - camera_cframe.Position).Unit
-                local dot_to_other = camera_direction:Dot(vector_to_other)
-                
-                if dot_to_other > dot_to_current_target + 0.1 then
-                    return false
-                end
-            end
-        end
-    end
-
-    local Character = LocalPlayer.Character
-
-    if Character.Parent == workspace.Dead then               
-        return
+    if not ball or not ball.Parent then
+        self.parries = 0
+        return false
     end
 
     if not target or not target.Parent or not player_character or not player_character.Parent then
@@ -1712,118 +1687,121 @@ function AutoParry:is_spam()
         return false
     end
 
-    if not AutoParry.ball or not ball_properties or not ball_properties.position then
-        self.parries = 0
+    if player_character.Parent == workspace.Dead then
         return false
     end
 
-    local target_humanoid = target:FindFirstChildOfClass("Humanoid")
-    if not target_humanoid or target_humanoid.Health <= 0 then      
+    local humanoid = target:FindFirstChildOfClass("Humanoid")
+    if not humanoid or humanoid.Health <= 0 then
         return false
     end
 
-    local old_from_target = AutoParry.target.from
+    local hrp = player_character:FindFirstChild("HumanoidRootPart") or player_character.PrimaryPart
+    local target_hrp = target:FindFirstChild("HumanoidRootPart") or target.PrimaryPart
+    if not hrp or not target_hrp then
+        return false
+    end
+
     if AutoParry.target.from ~= player_character then
         old_from_target = AutoParry.target.from
+    end
+
+    local now = tick()
+    local target_distance_to_me = (hrp.Position - target_hrp.Position).Magnitude
+
+    if target_distance_to_me <= 3.3 then
+        in_close_contact = true
+    elseif in_close_contact and target_distance_to_me > 3.8 then
+        in_close_contact = false
+        last_close_contact = now
+    end
+
+    local can_use_movement_boost = (not in_close_contact) and (now - last_close_contact >= 1.5)
+    local movement_factor = 1
+
+    local my_move_dir = player_character.Humanoid.MoveDirection
+    local dir_to_target = (target_hrp.Position - hrp.Position).Unit
+    local target_move_dir = target:FindFirstChildOfClass("Humanoid") and target.Humanoid.MoveDirection or Vector3.zero
+
+    if can_use_movement_boost then
+        if my_move_dir.Magnitude > 0.2 and my_move_dir:Dot(dir_to_target) < -0.4 then
+            movement_factor = 10
+        end
+        if target_move_dir.Magnitude > 0.2 and target_move_dir:Dot(-dir_to_target) < -0.4 then
+            movement_factor = math.max(movement_factor, 10)
+        end
+    end
+
+    local ping = Player.Entity.properties.ping or 0
+    local ball_speed = ball_properties.speed or 1
+    local base_threshold = 19 + (ping * 0.7) -- Base dari ping
+    local speed_bonus = math.min(ball_speed / (movement_factor * 1.2), 80)
+    local MAX_SPAM_DISTANCE = base_threshold + speed_bonus
+
+
+    local direction_to_ball = (hrp.Position - ball.Position).Unit
+    local velocity_unit = ball_properties.velocity.Unit
+    local dot = direction_to_ball:Dot(velocity_unit)
+    local dot_reduction = math.clamp(-dot, 0, 1)
+    local dot_impact = math.clamp(dot_reduction * (ball_speed / 40), 0, 4)
+    local SPAM_ACCURACY_THRESHOLD = MAX_SPAM_DISTANCE - dot_impact
+
+    local entity_distance = ball_properties.distance or (hrp.Position - ball.Position).Magnitude
+    local ball_distance = entity_distance
+    local target_distance = (hrp.Position - target_hrp.Position).Magnitude
+
+    if entity_distance > SPAM_ACCURACY_THRESHOLD then return false end
+    if ball_distance > SPAM_ACCURACY_THRESHOLD then return false end
+    if target_distance > SPAM_ACCURACY_THRESHOLD then return false end
+
+    if AutoParry.target.current_changed and AutoParry.target.direction_changed_on_cframe then
+        self.parries = 0
+        return false
     end
 
     if self.parries < 3 and AutoParry.target.from == old_from_target then
         return false
     end
 
-    
-    local player_ping = Player.Entity.properties.ping or 0
-    local distance_threshold = 19.05 + (player_ping / 10)
-
-    local ball_speed = ball_properties.speed or 1
-    local reach_time = ball_properties.distance / ball_speed - player_ping
-
-    if AutoParry.target.from ~= old_from_target and self.parries >= 3 and self.speed < 30 then
+    if AutoParry.target.from ~= old_from_target and self.parries >= 3 and ball_speed < 30 then
         self.parries = 2
         return false
     end
 
-    if (tick() - self.last_hit) < 0.3 and AutoParry.target.from ~= old_from_target then
-        if self.speed < 20 then 
-            self.parries = 1
-            return false
-        end
-    end
-
-    if (tick() - self.last_hit) > 0.8 and self.entity_distance > distance_threshold and self.parries < 3 then
+    if (tick() - self.last_hit) < 0.3 and AutoParry.target.from ~= old_from_target and ball_speed < 20 then
         self.parries = 1
         return false
     end
 
-    if ball_properties.lerp_radians then       
-        local curve_threshold = 0.28 + (player_ping / 100) 
-        if ball_properties.lerp_radians > curve_threshold then
-            if self.parries > 4 then
-                self.parries = 1
-            end
-            return false
-        end
-    end
-
-    if (tick() - ball_properties.last_warping) < (reach_time / 1.3) and self.entity_distance > distance_threshold and self.parries < 4 then
-        if self.parries > 3 then
-            self.parries = 1
-        end
+    if ball_properties.lerp_radians and ball_properties.lerp_radians > (0.28 + ping / 100) then
+        if self.parries > 4 then self.parries = 1 end
         return false
     end
 
-    if math.abs(self.speed - self.old_speed) < 5.2 and self.entity_distance > distance_threshold and self.speed < 60 and self.parries < 3 then
-        if self.parries > 3 then
-            self.parries = 0
-        end
+    if (tick() - ball_properties.last_warping) < (entity_distance / ball_speed / 1.3) and entity_distance > 20 then
+        if self.parries > 3 then self.parries = 1 end
         return false
     end
 
-    if self.speed < 15 then
+    if math.abs(ball_speed - ball_properties.old_speed) < 5.2 and entity_distance > 25 and ball_speed < 60 and self.parries < 3 then
+        return false
+    end
+
+    if ball_speed < 15 then
         self.parries = 1
         return false
     end
 
-    if self.maximum_speed < self.speed and self.entity_distance > distance_threshold then
+    if ball_properties.maximum_speed < ball_speed and entity_distance > 25 then
         self.parries = 1
         return false
     end
 
-    if self.entity_distance > self.range and self.entity_distance > distance_threshold then
-        if self.parries > 2 then
-            self.parries = 1
-        end
-        return false
+    if self.parries >= 6 then
+        return true
     end
 
-    if self.ball_distance > self.range and self.entity_distance > distance_threshold then
-        if self.parries > 2 then
-            self.parries = 2
-        end
-        return false
-    end
-
-    if self.last_position_distance > self.spam_accuracy and self.entity_distance > distance_threshold then
-        if self.parries > 4 then
-            self.parries = 2
-        end
-        return false
-    end
-
-    if self.ball_distance > self.spam_accuracy and self.ball_distance > distance_threshold then
-        if self.parries > 3 then
-            self.parries = 2
-        end
-        return false
-    end
-
-    if self.entity_distance > self.spam_accuracy and self.entity_distance > (distance_threshold - math.pi) then
-        if self.parries > 3 then
-            self.parries = 2
-        end
-        return false
-    end
-
+    self.parries += 1
     return true
 end
 
