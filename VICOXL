@@ -7531,9 +7531,10 @@ Tabs.Settings:Button({
     end
 })
 
-local ConfigTab = Tabs.Config:Tab({ Title = "Config", Icon = "folder" })
 
-local ConfigInput = ConfigTab:Input({
+Tabs.Config:Section({ Title = "Config", Icon = "folder" })
+
+local ConfigInput = Tabs.Config:Input({
     Title = "Config Name",
     Default = ConfigName,
     Callback = function(value)
@@ -7545,7 +7546,7 @@ local ConfigInput = ConfigTab:Input({
 
 ConfigTab:Space()
 
-local AutoLoadToggle = ConfigTab:Toggle({
+local AutoLoadToggle = Tabs.Config:Toggle({
     Title = "Auto Load on Inject",
     Default = CurrentConfig.AutoLoad or false,
     Callback = function(v)
@@ -7556,7 +7557,7 @@ local AutoLoadToggle = ConfigTab:Toggle({
 
 ConfigTab:Space()
 
-local ConfigDropdown = ConfigTab:Dropdown({
+local ConfigDropdown = Tabs.Config:Dropdown({
     Title = "Select Config",
     Values = AllConfigs,
     Default = ConfigName,
@@ -7570,15 +7571,15 @@ local ConfigDropdown = ConfigTab:Dropdown({
     end
 })
 
-ConfigTab:Space()
+Tabs.Config:Space()
 
-ConfigTab:Button({
+Tabs.Config:Button({
     Title = "Save All",
     Icon = "save",
     Callback = SaveConfig 
 })
 
-ConfigTab:Button({
+Tabs.Config:Button({
     Title = "Load Current",
     Icon = "refresh-cw",
     Callback = function()
