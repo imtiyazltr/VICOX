@@ -934,8 +934,8 @@ local Window = WindUI:CreateWindow({
     },
 })
 
-local ConfigManager = Window.ConfigManager
 
+local ConfigManager = Window.ConfigManager
 local ConfigName = "VicoX_Default"
 
 
@@ -946,30 +946,40 @@ Window.CurrentConfig = CurrentConfig
 local AllConfigs = ConfigManager:AllConfigs()
 local ConfigExists = table.find(AllConfigs, ConfigName) ~= nil
 
+
 if ConfigExists then
     CurrentConfig:Load()
-    WindUI:Notify({  
+    WindUI:Notify({
         Title = "Config Loaded",
         Content = "Auto-loaded: " .. ConfigName,
         Duration = 3,
         Icon = "refresh-cw"
     })
-end
+    
 
-task.spawn(function()
-    for flag, value in pairs(CurrentConfig.Flags) do 
-        if Config[flag] ~= nil then
-            Config[flag] = value
+    pcall(function()
+        if CurrentConfig.Flags and type(CurrentConfig.Flags) == "table" then
+            for flag, value in pairs(CurrentConfig.Flags) do
+                if Config[flag] ~= nil then
+                    Config[flag] = value
+                end
+            end
         end
-    end
-end)
-
-CurrentConfig:SetAutoSave(true)
+    end)
+end
 
 CurrentConfig:SetAutoLoad(true)
 
-
-
+local function SaveConfig()
+    if CurrentConfig:Save() then
+        WindUI:Notify({
+            Title = "Config Saved",
+            Content = "Updated: " .. ConfigName,
+            Duration = 2,
+            Icon = "check"
+        })
+    end
+end
 
 -- Custom Open Button
 Window:EditOpenButton({
@@ -4591,6 +4601,7 @@ Tabs.Special:Toggle({
     Value = true,
     Callback = function(value)
         Config.plushie_enabled = value
+        SaveConfig()
         WindUI:Notify({
             Title = "Plushie Enabled",
             Content = value and "Plushie enabled" or "Plushie disabled",
@@ -4609,6 +4620,7 @@ Tabs.Special:Dropdown({
 	Value = "Miku",
 	Callback = function(option)
             Config.plushie_type = option
+        SaveConfig()
 	    WindUI:Notify({
             Title = "Plushie Selected",
             Content = "Plushie Change to" .. option,
@@ -4628,6 +4640,7 @@ Tabs.Special:Toggle({
     Callback = function(value)
         getgenv().skinChanger = value
         Config.skinChanger = value
+        SaveConfig()
         if value then
             getgenv().updateSword()
             WindUI:Notify({
@@ -4662,6 +4675,7 @@ Tabs.Special:Input({
         Config.swordModel = input
         Config.swordAnimations = input
         Config.swordFX = input
+        SaveConfig()
         if getgenv().skinChanger then
             getgenv().updateSword()
             WindUI:Notify({
@@ -4689,6 +4703,7 @@ Tabs.Special:Toggle({
     Icon = "music",
     Value = false,
     Callback = function(value)
+        SaveConfig()
         if value then
             playSound()
         else
@@ -4719,6 +4734,7 @@ Tabs.Special:Dropdown({
     Value = "back it up",
     Callback = function(value)
         selectedSound = value
+        SaveConfig()
         if currentSound.Playing then
             playSound()
         else
@@ -4740,6 +4756,7 @@ Tabs.Special:Toggle({
     Value = false,
     Callback = function(value)
         currentSound.Looped = value
+        SaveConfig()
         WindUI:Notify({
             Title = "Loop Song",
             Content = value and "Loop enabled" or "Loop disabled",
@@ -4757,6 +4774,7 @@ Tabs.Special:Slider({
     Value = { Min = 1, Max = 5, Default = 3 },
     Callback = function(value)
         currentSound.Volume = value
+        SaveConfig()
         WindUI:Notify({
             Title = "Volume",
             Content = "Volume set to " .. string.format("%.1f", value),
@@ -4792,6 +4810,7 @@ Tabs.Blatant:Toggle({
     Value = Config.auto_parry,    
     Callback = function(state)
         Config.auto_parry = state
+        SaveConfig()
         WindUI:Notify({
             Title = "Auto Parry",
             Content = "Auto Parry " .. (state and "enabled" or "disabled"),
@@ -4809,6 +4828,7 @@ Tabs.Blatant:Toggle({
     Value = Config.triggerbot,
     Callback = function(state)
         Config.triggerbot = state
+        SaveConfig()
         WindUI:Notify({
             Title = "Triggerbot",
             Content = "Triggerbot " .. (state and "enabled" or "disabled"),
@@ -4873,6 +4893,7 @@ Tabs.Blatant:Toggle({
     Value = false,
     Callback = function(state)
         AutoAbility.enabled = state
+        SaveConfig()
         WindUI:Notify({
             Title = "Auto Ability",
             Content = "Auto Ability " .. (state and "enabled" or "disabled"),
@@ -4891,6 +4912,7 @@ Tabs.Blatant:Slider({
      Value = { Min = 1, Max = 100, Default = 2 },
      Callback = function(value)
         getgenv().speeddo = value
+        SaveConfig()
         WindUI:Notify({
             Title = "Acuity",
             Content = "Acuity set to " .. value,
@@ -4907,6 +4929,7 @@ Tabs.Blatant:Dropdown({
 	Value = "Blatant",
 	Callback = function(option)
             parry_mode = option
+        SaveConfig()
 	    WindUI:Notify({
             Title = "Auto Parry Mode",
             Content = "Parry Mode Change to" .. option,
@@ -4923,6 +4946,7 @@ Tabs.Blatant:Dropdown({
     Value = "Hook",
     Callback = function(option)
         SelectedParryMethod = option
+        SaveConfig()
         WindUI:Notify({
             Title = "Parry Methode",
             Content = "Parry Methode Change to" .. option,
@@ -4939,6 +4963,7 @@ Tabs.Blatant:Toggle({
     Value = false,
     Callback = function(state)
         Config.manual_spam = state
+        SaveConfig()
         if state then
             ManualSpam() 
         else
@@ -4964,6 +4989,7 @@ Tabs.Blatant:Toggle({
     Value = false,    
     Callback = function(state)
         Config.auto_parry_rotation = state
+        SaveConfig()
         WindUI:Notify({
             Title = "Rotation",
             Content = "Rotation " .. (state and "enabled" or "disabled"),
@@ -4982,6 +5008,7 @@ Tabs.Blatant:Slider({
     Value = { Min = 0, Max = 100, Default = 5 },
     Callback = function(value)
         Config.auto_parry_rotation_acuity = value
+        SaveConfig()
         WindUI:Notify({
             Title = "Acuity",
             Content = "Acuity set to " .. value,
@@ -5001,6 +5028,7 @@ Tabs.Blatant:Dropdown({
     Value = "Normal",
     Callback = function(option)
         Config.curve_method = option
+        SaveConfig()
         WindUI:Notify({
             Title = "Curve Method",
             Content = "Curve Method set to " .. option,
@@ -5019,6 +5047,7 @@ Tabs.Blatant:Toggle({
     Value = false,
     Callback = function(state)
         Config.no_slow = state
+        SaveConfig()
         WindUI:Notify({
             Title = "No Slow",
             Content = "No Slow " .. (state and "enabled" or "disabled"),
@@ -5044,7 +5073,8 @@ Tabs.Visuals:Toggle({
     Icon = "sparkles",
     Value = true,
     Callback = function(state)
-        Config.self_effect = state        
+        Config.self_effect = state     
+        SaveConfig()
         WindUI:Notify({
             Title = "Self Effect",
             Content = "Self Effect " .. (state and "enabled" or "disabled"),
@@ -5139,6 +5169,7 @@ Tabs.Visuals:Dropdown({
     Value = "Magic Circle",
     Callback = function(value)
         Config.self_effect_selected = value
+        SaveConfig()
         WindUI:Notify({
             Title = "Self Effect",
             Content = "Selected effect: " .. value,
@@ -5260,6 +5291,7 @@ Tabs.Visuals:Toggle({
     Value = false,
     Callback = function(state)
         Config.kill_effect = state
+        SaveConfig()
         WindUI:Notify({
             Title = "Kill Effect",
             Content = "Kill Effect " .. (state and "enabled" or "disabled"),
@@ -5276,6 +5308,7 @@ Tabs.Visuals:Slider({
     Value = { Min = 1, Max = 5, Default = 1 },
     Callback = function(value)
         Config.kill_effect_scale = value
+        SaveConfig()
         WindUI:Notify({
             Title = "Bell Scale",
             Content = "Bell Scale set to " .. value .. "x",
@@ -5294,6 +5327,7 @@ Tabs.Visuals:Dropdown({
     Multi = false,
     Callback = function(selected)
         Config.kill_effect_animation = selected
+        SaveConfig()
         WindUI:Notify({
             Title = "Kill Effect Animation",
             Content = "Animation set to " .. selected,
@@ -5313,6 +5347,7 @@ Tabs.Visuals:Toggle({
     Value = true, -- Keep your default value
     Callback = function(state)
         Config.visualize = state
+        SaveConfig()
         WindUI:Notify({
             Title = "Visualizer",
             Content = "Visualizer " .. (state and "enabled" or "disabled"),
@@ -5408,6 +5443,7 @@ Tabs.Visuals:Toggle({
     Value = false,
     Callback = function(state)
         Config.visual_ring = state
+        SaveConfig()
         WindUI:Notify({
             Title = "Visual Ring",
             Content = "Visual Ring " .. (state and "enabled" or "disabled"),
@@ -5424,6 +5460,7 @@ Tabs.Visuals:Toggle({
     Value = true,
     Callback = function(state)
         Config.visuals_enabled = state
+        SaveConfig()
         WindUI:Notify({
             Title = "Visual Effects",
             Content = "Visual Effects " .. (state and "enabled" or "disabled"),
@@ -5441,6 +5478,7 @@ Tabs.Visuals:Toggle({
     Callback = function(state)
         getgenv().BallDirectionIndicator = state
         ScreenGui.Enabled = state
+        SaveConfig()
         WindUI:Notify({
             Title = "Ball Direction Indicator",
             Content = "Indicator " .. (state and "ON" or "OFF"),
@@ -5458,6 +5496,7 @@ Tabs.Visuals:Toggle({
     Value = false,    
     Callback = function(state)
         Config.visualize_Enabled = state
+        SaveConfig()
         WindUI:Notify({
             Title = "Visualizer Mode",
             Content = "Visualizer Mode to" .. (state and "enabled" or "disabled"),
@@ -5475,6 +5514,7 @@ Tabs.Visuals:Toggle({
     Value = false,
     Callback = function(state)
         cameraLocked = state
+        SaveConfig()
         if state then
             ConnectionsManager["CameraLock"] = RunService.RenderStepped:Connect(function()
                 local ball = AutoParry.ball.ball_entity
@@ -5524,6 +5564,7 @@ Tabs.Visuals:Dropdown({
     Multi = false,
     Callback = function(value)
         cameraViewMode = value
+        SaveConfig()
     end
 })
 
@@ -5535,6 +5576,7 @@ Tabs.Visuals:Toggle({
     Value = Config.ball_text_enabled,
     Callback = function(state)
         Config.ball_text_enabled = state
+        SaveConfig()
         if updateBillboardText then
             updateBillboardText()
         else
@@ -5554,6 +5596,7 @@ Tabs.Visuals:Toggle({
     Value = Config.player_text_enabled,
     Callback = function(state)
         Config.player_text_enabled = state
+        SaveConfig()
         if updateBillboardText then
             updateBillboardText()
         else
@@ -5576,6 +5619,7 @@ Tabs.Visuals:Toggle({
     Value = false,
     Callback = function(state)
         Config.ball_trail_enabled = state
+        SaveConfig()
         if state or Config.player_trail_enabled then
             task.spawn(StartTrailUpdate)
         else
@@ -5597,6 +5641,7 @@ Tabs.Visuals:Colorpicker({
     Value = Color3.fromRGB(255, 0, 0),
     Callback = function(color)
         Config.ball_trail_color = color
+        SaveConfig()
         WindUI:Notify({
             Title = "Ball Trail Color",
             Content = "Color updated",
@@ -5613,6 +5658,7 @@ Tabs.Visuals:Toggle({
     Value = false,
     Callback = function(state)
         Config.player_trail_enabled = state
+        SaveConfig()
         if state or Config.ball_trail_enabled then
             task.spawn(StartTrailUpdate)
         else
@@ -5634,6 +5680,7 @@ Tabs.Visuals:Colorpicker({
     Value = Color3.fromRGB(0, 255, 255),
     Callback = function(color)
         Config.player_trail_color = color
+        SaveConfig()
         WindUI:Notify({
             Title = "Player Trail Color",
             Content = "Color updated",
@@ -5652,6 +5699,7 @@ Tabs.Visuals:Toggle({
     Value = false,
     Callback = function(state)
         Config.trail_particle_enabled = state
+        SaveConfig()
         WindUI:Notify({
             Title = "Trail Particles",
             Content = "Trail Particles " .. (state and "enabled" or "disabled"),
@@ -5668,6 +5716,7 @@ Tabs.Visuals:Slider({
     Value = { Min = 5, Max = 50, Default = 10 },
     Callback = function(value)
         Config.trail_particle_rate = value
+        SaveConfig()
         WindUI:Notify({
             Title = "Particle Rate",
             Content = "Particle Rate set to " .. value,
@@ -5686,6 +5735,7 @@ Tabs.Visuals:Dropdown({
     Multi = false,
     Callback = function(selected)
         Config.trail_animation_type = selected
+        SaveConfig()
         WindUI:Notify({
             Title = "Trail Animation",
             Content = "Animation set to " .. selected,
@@ -5704,6 +5754,7 @@ Tabs.Visuals:Dropdown({
     Multi = false,
     Callback = function(selected)
         Config.trail_texture = selected
+        SaveConfig()
         WindUI:Notify({
             Title = "Trail Texture",
             Content = "Texture set to " .. selected,
@@ -5723,6 +5774,7 @@ Tabs.Visuals:Toggle({
     Value = false,
     Callback = function(state)
         Config.no_render = state
+        SaveConfig()
         WindUI:Notify({
             Title = "No Render",
             Content = "No Render " .. (state and "enabled" or "disabled"),
@@ -5739,6 +5791,7 @@ Tabs.Visuals:Toggle({
     Value = false,
     Callback = function(state)
         Config.smart_no_render = state
+        SaveConfig()
         WindUI:Notify({
             Title = "Smart No Render",
             Content = "Smart No Render " .. (state and "enabled" or "disabled"),
@@ -5757,6 +5810,7 @@ Tabs.Visuals:Toggle({
     Value = false,
     Callback = function(state)
         Config.sound_effect_enabled = state
+        SaveConfig()
         WindUI:Notify({
             Title = "Parry Sound",
             Content = "Parry Sound " .. (state and "enabled" or "disabled"),
@@ -5789,6 +5843,7 @@ Tabs.Visuals:Dropdown({
     Value = "DC_15X",
     Callback = function(Value)
         sound_effect_type = Value
+        SaveConfig()
         WindUI:Notify({
             Title = "Sound Type",
             Content = "Sound Type set to " .. Value,
@@ -5805,6 +5860,7 @@ Tabs.Visuals:Input({
     Placeholder = "Enter sound id",
     Callback = function(text)
         CustomId = text
+        SaveConfig()
         WindUI:Notify({
             Title = "Custom Sound",
             Content = "Custom Sound ID set to " .. text,
@@ -5831,6 +5887,7 @@ Tabs.Worlds:Toggle({
     Value = false,
     Callback = function(state)
         Config.night_mode = state
+        SaveConfig()
         WindUI:Notify({
             Title = "Night Mode",
             Content = "Night Mode " .. (state and "enabled" or "disabled"),
@@ -5849,6 +5906,7 @@ Tabs.Worlds:Toggle({
     Value = false,
     Callback = function(value)
         Config.custom_sky = value
+        SaveConfig()
         local Lighting = game:GetService("Lighting")
         local Sky = Lighting:FindFirstChildOfClass("Sky")
         if value then
@@ -5895,6 +5953,7 @@ Tabs.Worlds:Dropdown({
     Value = "Default",
     Callback = function(selectedOption)
         Config.custom_sky_selector = selectedOption
+        SaveConfig()
         if not Config.custom_sky then
             WindUI:Notify({
                 Title = "Custom Sky",
@@ -5953,7 +6012,6 @@ Tabs.Misc:Section({ Title = "Ping Booster Select" })
 
 Tabs.Misc:Button({
     Title = "Load Ping Booster",
-    Flag = "LoadPingBooster_SAVE",
     Icon = "network-wired",
     Callback = function()
         local success, result = pcall(function()
@@ -5987,6 +6045,7 @@ Tabs.Misc:Toggle({
     Value = false,
     Callback = function(state)
         Config.auto_rewards = state
+        SaveConfig()
         WindUI:Notify({
             Title = "Auto Rewards",
             Content = "Auto Rewards " .. (state and "enabled" or "disabled"),
@@ -6004,6 +6063,7 @@ Tabs.Misc:Toggle({
     Value = false,
     Callback = function(state)
         Config.disable_quantum_effects = state
+        SaveConfig()
         WindUI:Notify({
             Title = "Quantum Effects",
             Content = "Quantum Effects " .. (state and "disabled" or "enabled"),
@@ -6021,6 +6081,7 @@ Tabs.Misc:Toggle({
     Callback = function(state)
         CustomAnnouncer.enabled = state
         Config.custom_announcer = state
+        SaveConfig()
         if state then
             CustomAnnouncer:updateAnnouncer()
         else
@@ -6046,6 +6107,7 @@ Tabs.Misc:Input({
     Callback = function(text)
         CustomAnnouncer.custom_text = text
         Config.announcer_text = text
+        SaveConfig()
         if CustomAnnouncer.enabled then
             CustomAnnouncer:updateAnnouncer()
         end
@@ -6061,7 +6123,6 @@ Tabs.Misc:Section({ Title = "Crate" })
 
 Tabs.Misc:Button({
     Title = "Open Sword Crate",
-    Flag = "OpenSwordCrate_SAVE",
     Icon = "package",
     Callback = function()
         local result = getSword()
@@ -6085,7 +6146,6 @@ Tabs.Misc:Button({
 
 Tabs.Misc:Button({
     Title = "Open Explosion Crate",
-    Flag = "OpenExplosionCrate_SAVE",
     Icon = "package",
     Callback = function()
         local result = getExplosion()
@@ -6116,6 +6176,7 @@ Tabs.Misc:Toggle({
     Value = false,
     Callback = function(state)
         getgenv().Config.strafe = state
+        SaveConfig()
         WindUI:Notify({
             Title = "Strafe",
             Content = "Strafe " .. (state and "enabled" or "disabled"),
@@ -6134,6 +6195,7 @@ Tabs.Misc:Slider({
     Value = { Min = 0, Max = 100, Default = 16 },
     Callback = function(value)
         getgenv().Config.strafe_speed = value
+        SaveConfig()
         WindUI:Notify({
             Title = "Strafe Speed",
             Content = "Strafe Speed set to " .. value,
@@ -6147,7 +6209,6 @@ Tabs.Misc:Section({ Title = "Fly Over" })
 
 Tabs.Misc:Toggle({
     Title = "Fly (mobile and PC work)",
-    Flag = "Fly_SAVE",
     Icon = "cloud",
     Value = false,
     Callback = function(state)
@@ -6423,6 +6484,7 @@ Tabs.Misc:Toggle({
     Value = false,
     Callback = function(state)
         Config.personnel_detector = state
+        SaveConfig()
         WindUI:Notify({
             Title = "Personnel Detector",
             Content = "Personnel Detector " .. (state and "enabled" or "disabled"),
@@ -6438,6 +6500,7 @@ Tabs.Misc:Toggle({
     Value = false,
     Callback = function(state)
         Config.personnel_detector_auto_leave = state
+        SaveConfig()
         WindUI:Notify({
             Title = "Auto Leave",
             Content = "Auto Leave " .. (state and "enabled" or "disabled"),
@@ -6455,6 +6518,7 @@ Tabs.Misc:Toggle({
     Value = false,
     Callback = function(state)
         Config.gravity = state
+        SaveConfig()
         WindUI:Notify({
             Title = "Gravity",
             Content = "Gravity " .. (state and "enabled" or "disabled"),
@@ -6472,6 +6536,7 @@ Tabs.Misc:Slider({
     Value = { Min = 0, Max = 100, Default = 50 },
     Callback = function(value)
         Config.gravity_strength = value
+        SaveConfig()
         WindUI:Notify({
             Title = "Gravity Strength",
             Content = "Gravity Strength set to " .. value,
@@ -6495,6 +6560,7 @@ Tabs.Players:Toggle({
     Value = false,
     Callback = function(state)
         Config.player_follow = state
+        SaveConfig()
         if state then
             -- Start following connection
             ConnectionsManager['player_follow'] = RunService.Heartbeat:Connect(function()
@@ -6540,7 +6606,6 @@ Tabs.Players:Divider()
 local initialPlayerNames = PlayerFollow:getPlayerNames()
 Tabs.Players:Dropdown({
     Title = "Follow Target",
-    Flag = "FollowTarget_SAVE",
     Values = initialPlayerNames,
     Value = #initialPlayerNames > 0 and initialPlayerNames[1] or nil,
     Callback = function(value)
@@ -6562,6 +6627,7 @@ Tabs.Players:Toggle({
     Icon = "user-check",
     Value = false,
     Callback = function(value)
+        SaveConfig()
         _G.PlayerCosmeticsCleanup = _G.PlayerCosmeticsCleanup or {}
         local players = game:GetService("Players")
         local lp = players.LocalPlayer
@@ -6729,6 +6795,7 @@ Tabs.Players:Toggle({
     Icon = "camera",
     Value = false,
     Callback = function(state)
+        SaveConfig()
         Config.camera = state
         WindUI:Notify({
             Title = "Camera",
@@ -6748,6 +6815,7 @@ Tabs.Players:Slider({
     Value = { Min = 0, Max = 120, Default = 50 },
     Callback = function(value)
         Config.field_of_view = value
+        SaveConfig()
         WindUI:Notify({
             Title = "Field Of View",
             Content = "Field Of View set to " .. value,
@@ -6766,6 +6834,7 @@ Tabs.Players:Toggle({
     Value = false,
     Callback = function(state)
         Config.ability_vulnerability = state
+        SaveConfig()
         WindUI:Notify({
             Title = "Ability Vulnerability",
             Content = "Ability Vulnerability " .. (state and "enabled" or "disabled"),
@@ -6785,6 +6854,7 @@ Tabs.Players:Dropdown({
     Value = "Quad Jump",
     Callback = function(option)
         Config.ability_vulnerability_mode = option
+        SaveConfig()
         WindUI:Notify({
             Title = "Ability Vulnerability Mode",
             Content = "Mode set to " .. option,
@@ -6810,6 +6880,7 @@ Tabs.Farm:Toggle({
     Value = false,
     Callback = function(value)
         autoDuelsRequeueEnabled = value
+        SaveConfig()
         if value then
             task.spawn(function()
                 while autoDuelsRequeueEnabled do
@@ -6854,6 +6925,7 @@ Tabs.Farm:Toggle({
     Value = false,
     Callback = function(value)
         autoRequeueEnabled = value
+        SaveConfig()
         if value then
             if not table.find(validRankedPlaceIds, game.PlaceId) then
                 autoRequeueEnabled = false
@@ -6905,6 +6977,7 @@ Tabs.Farm:Dropdown({
     Value = "FFA",
     Callback = function(selectedOption)
         selectedQueue = selectedOption
+        SaveConfig()
         WindUI:Notify({
             Title = "Queue Type",
             Content = "Set queue type to: " .. selectedOption,
@@ -6923,6 +6996,7 @@ Tabs.Farm:Toggle({
     Value = false,
     Callback = function(value)
         autoLTMRequeueEnabled = value
+        SaveConfig()
         if value then
             if game.PlaceId ~= validLTMPlaceId then
                 autoLTMRequeueEnabled = false
@@ -6977,6 +7051,7 @@ Tabs.Farm:Toggle({
     Callback = function(state)
         Config.ai_play = state
         AIPlaying = state
+        SaveConfig()
         if AIPlaying then
             if AICoroutine then
                 task.cancel(AICoroutine)
@@ -7011,6 +7086,7 @@ Tabs.Farm:Dropdown({
         Config.ai_method = value
         AICurrentMethod = value
         AITarget = nil
+        SaveConfig()
         WindUI:Notify({
             Title = "AI Behavior",
             Content = "AI Behavior set to " .. value,
@@ -7027,6 +7103,7 @@ Tabs.Farm:Toggle({
     Value = Config.auto_play or false,
     Callback = function(state)
         Config.auto_play = state
+        SaveConfig()
         if state then
             AutoPlayModule.runThread()
             WindUI:Notify({
@@ -7053,6 +7130,7 @@ Tabs.Farm:Toggle({
     Value = true,
     Callback = function(state)        
         AutoPlayModule.CONFIG.JUMPING_ENABLED = state
+        SaveConfig()
         WindUI:Notify({
             Title = "Jumping",
             Content = "Jumping " .. (state and "enabled" or "disabled"),
@@ -7071,6 +7149,7 @@ Tabs.Farm:Slider({
     Callback = function(value)
         Config.default_distance = value
         AutoPlayModule.CONFIG.DEFAULT_DISTANCE = value
+        SaveConfig()
         WindUI:Notify({
             Title = "Distance From Ball",
             Content = "Set to " .. value,
@@ -7086,6 +7165,7 @@ Tabs.Farm:Slider({
     Value = { Min = 10, Max = 200, Default = 70 },   
     Callback = function(value)        
         AutoPlayModule.CONFIG.MULTIPLIER_THRESHOLD = value
+        SaveConfig()
         WindUI:Notify({
             Title = "Speed Multiplier",
             Content = "Set to " .. value,
@@ -7103,6 +7183,7 @@ Tabs.Farm:Slider({
     Value = { Min = 0, Max = 100, Default = 25 },
     Callback = function(value)        
         AutoPlayModule.CONFIG.TRAVERSING = value
+        SaveConfig()
         WindUI:Notify({
             Title = "Traversing",
             Content = "Set to " .. value,
@@ -7120,6 +7201,7 @@ Tabs.Farm:Slider({
     Value = { Min = -1, Max = 1, Default = 1 },
     Callback = function(value)       
         AutoPlayModule.CONFIG.DIRECTION = value
+        SaveConfig()
         WindUI:Notify({
             Title = "Direction",
             Content = "Set to " .. value,
@@ -7137,6 +7219,7 @@ Tabs.Farm:Slider({
     Value = { Min = 0.1, Max = 1, Default = 0.7 },
     Callback = function(value)        
         AutoPlayModule.CONFIG.OFFSET_FACTOR = value
+        SaveConfig()
         WindUI:Notify({
             Title = "Offset Factor",
             Content = "Set to " .. value,
@@ -7151,6 +7234,7 @@ Tabs.Farm:Slider({
     Value = { Min = 0.1, Max = 1, Default = 0.8 },
     Callback = function(value)        
         AutoPlayModule.CONFIG.MOVEMENT_DURATION = value
+        SaveConfig()
         WindUI:Notify({
             Title = "Movement Duration",
             Content = "Set to " .. value,
@@ -7168,6 +7252,7 @@ Tabs.Farm:Slider({
     Value = { Min = 0.1, Max = 0.5, Default = 0.25 },
     Callback = function(value)        
         AutoPlayModule.CONFIG.GENERATION_THRESHOLD = value
+        SaveConfig()
         WindUI:Notify({
             Title = "Generation Threshold",
             Content = "Set to " .. value,
@@ -7183,6 +7268,7 @@ Tabs.Farm:Slider({
     Value = { Min = 0, Max = 100, Default = 50 },
     Callback = function(value)        
         AutoPlayModule.CONFIG.JUMP_PERCENTAGE = value
+        SaveConfig()
         WindUI:Notify({
             Title = "Jump Chance",
             Content = "Set to " .. value .. "%",
@@ -7198,6 +7284,7 @@ Tabs.Farm:Slider({
     Value = { Min = 0, Max = 100, Default = 50 },
     Callback = function(value)       
         AutoPlayModule.CONFIG.DOUBLE_JUMP_PERCENTAGE = value
+        SaveConfig()
         WindUI:Notify({
             Title = "Double Jump Chance",
             Content = "Set to " .. value .. "%",
@@ -7215,6 +7302,7 @@ Tabs.Farm:Toggle({
     Value = false,
     Callback = function(state)
         auto_farm_enabled = state
+        SaveConfig()
         if state then
             if auto_farm_connection then
                 auto_farm_connection:Disconnect()
@@ -7295,6 +7383,7 @@ Tabs.Farm:Dropdown({
     Multi = false,
     Callback = function(selected)
         auto_farm_type = selected
+        SaveConfig()
     end
 })
 
@@ -7304,6 +7393,7 @@ Tabs.Farm:Slider({
     Value = { Min = 1, Max = 20, Default = 5 },
     Callback = function(value)
         auto_farm_orbit = value
+        SaveConfig()
     end
 })
 
@@ -7313,6 +7403,7 @@ Tabs.Farm:Slider({
     Value = { Min = 0, Max = 50, Default = 10 },
     Callback = function(value)
         auto_farm_height = value
+        SaveConfig()
     end
 })
 
@@ -7322,6 +7413,7 @@ Tabs.Farm:Slider({
     Value = { Min = 5, Max = 50, Default = 20 },
     Callback = function(value)
         auto_farm_radius = value
+        SaveConfig()
     end
 })
 
@@ -7439,11 +7531,11 @@ Tabs.Settings:Button({
     end
 })
 
-local ConfigSection = Tabs.Config:Section({ Title = "Config Manager" })
+local ConfigTab = Tabs.Config:Tab({ Title = "Config", Icon = "folder" })
 
-local ConfigNameInput = ConfigSection:Input({
+local ConfigInput = ConfigTab:Input({
     Title = "Config Name",
-    Default = ConfigName,  -- Default dari atas
+    Default = ConfigName,
     Callback = function(value)
         ConfigName = value
         CurrentConfig = ConfigManager:Config(ConfigName)
@@ -7451,68 +7543,47 @@ local ConfigNameInput = ConfigSection:Input({
     end
 })
 
-ConfigSection:Space()
+ConfigTab:Space()
 
-local AutoLoadToggle = ConfigSection:Toggle({
+local AutoLoadToggle = ConfigTab:Toggle({
     Title = "Auto Load on Inject",
     Default = CurrentConfig.AutoLoad or false,
     Callback = function(v)
         CurrentConfig:SetAutoLoad(v)
+        SaveConfig() 
     end
 })
 
-ConfigSection:Space()
+ConfigTab:Space()
 
-local AllConfigs = ConfigManager:AllConfigs()
-local ConfigDropdown = ConfigSection:Dropdown({
+local ConfigDropdown = ConfigTab:Dropdown({
     Title = "Select Config",
     Values = AllConfigs,
     Default = ConfigName,
     Callback = function(value)
         ConfigName = value
-        ConfigNameInput:Set(value)
+        ConfigInput:Set(value)
         CurrentConfig = ConfigManager:Config(ConfigName)
         Window.CurrentConfig = CurrentConfig
         AutoLoadToggle:Set(CurrentConfig.AutoLoad or false)
+        CurrentConfig:Load()
     end
 })
 
-ConfigSection:Space()
+ConfigTab:Space()
 
-ConfigSection:Button({
-    Title = "Save Config",
-    Callback = function()
-        if CurrentConfig:Save() then
-            WindUI:Notify({
-                Title = "Saved",
-                Content = "Config '" .. ConfigName .. "' saved!",
-                Icon = "check"
-            })
-            AllConfigs = ConfigManager:AllConfigs()
-            ConfigDropdown:Refresh(AllConfigs)  -- Update dropdown
-        end
-    end
+ConfigTab:Button({
+    Title = "Save All",
+    Icon = "save",
+    Callback = SaveConfig 
 })
 
-ConfigSection:Button({
-    Title = "Load Config",
+ConfigTab:Button({
+    Title = "Load Current",
+    Icon = "refresh-cw",
     Callback = function()
-        if CurrentConfig:Load() then
-            WindUI:Notify({
-                Title = "Loaded",
-                Content = "Config '" .. ConfigName .. "' loaded!",
-                Icon = "refresh-cw"
-            })
-        end
-    end
-})
-
-ConfigSection:Space()
-
-ConfigSection:Button({
-    Title = "Print All AutoLoad Configs",
-    Callback = function()
-        print("AutoLoad Configs:", ConfigManager:GetAutoLoadConfigs())
+        CurrentConfig:Load()
+        WindUI:Notify({ Title = "Loaded", Content = ConfigName, Icon = "check" })
     end
 })
 
@@ -7537,6 +7608,7 @@ local themeDropdown = Tabs.Theme:Dropdown({
     Values = themeValues,
     Callback = function(theme)
         WindUI:SetTheme(theme)
+SaveConfig()
     end
 })
 themeDropdown:Select(WindUI:GetCurrentTheme())
@@ -7575,6 +7647,7 @@ Tabs.Theme:Input({
     Value = currentThemeName,
     Callback = function(name)
         currentThemeName = name
+        SaveConfig()
         WindUI:Notify({
             Title = "Theme Name",
             Content = "Theme name set to " .. name,
@@ -7591,6 +7664,7 @@ Tabs.Theme:Colorpicker({
     Default = Color3.fromHex(ThemeAccent),
     Callback = function(color)
         ThemeAccent = color:ToHex()
+        SaveConfig()
         WindUI:Notify({
             Title = "Accent Color",
             Content = "Accent color set to " .. color:ToHex(),
@@ -7607,6 +7681,7 @@ Tabs.Theme:Colorpicker({
     Default = Color3.fromHex(ThemeOutline),
     Callback = function(color)
         ThemeOutline = color:ToHex()
+        SaveConfig()
         WindUI:Notify({
             Title = "Outline Color",
             Content = "Outline color set to " .. color:ToHex(),
@@ -7623,6 +7698,7 @@ Tabs.Theme:Colorpicker({
     Default = Color3.fromHex(ThemeText),
     Callback = function(color)
         ThemeText = color:ToHex()
+        SaveConfig()
         WindUI:Notify({
             Title = "Text Color",
             Content = "Text color set to " .. color:ToHex(),
