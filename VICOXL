@@ -2381,7 +2381,7 @@ ConnectionsManager['auto_parry'] = RunService.Heartbeat:Connect(function()
         repeat
             RunService.PreSimulation:Wait(0)
         until 
-            (tick() - ball_properties.last_hit) > (1 - math.clamp(ping_threshold / 100, 0.1, 0.6))
+            (tick() - ball_properties.last_hit) > (2 - math.clamp(ping_threshold / 100, 0.1, 0.6))
 
         ball_properties.cooldown = false
     end)
