@@ -936,14 +936,6 @@ local Window = WindUI:CreateWindow({
     },
 })
 
-do
-    Window:Tag({
-        Title = "BladeBall VICOX V.1,
-        Icon = "github",
-        Color = Color3.fromHex("#1c1c1c")
-    })
-end
-
 
 local ConfigManager = Window.ConfigManager
 local ConfigName = "VicoX_Default"
