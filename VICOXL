@@ -934,6 +934,14 @@ local Window = WindUI:CreateWindow({
     },
 })
 
+do
+    Window:Tag({
+        Title = "BladeBall VICOX V.1,
+        Icon = "github",
+        Color = Color3.fromHex("#1c1c1c")
+    })
+end
+
 
 local ConfigManager = Window.ConfigManager
 local ConfigName = "VicoX_Default"
@@ -7544,7 +7552,6 @@ local ConfigInput = Tabs.Config:Input({
     end
 })
 
-ConfigTab:Space()
 
 local AutoLoadToggle = Tabs.Config:Toggle({
     Title = "Auto Load on Inject",
@@ -7571,7 +7578,7 @@ local ConfigDropdown = Tabs.Config:Dropdown({
     end
 })
 
-Tabs.Config:Space()
+Tabs.Config:Devider()
 
 Tabs.Config:Button({
     Title = "Save All",
