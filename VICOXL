@@ -991,7 +991,6 @@ local function SaveConfig()
     end
 end
 
--- Custom Open Button
 Window:EditOpenButton({
     Title = "VicoX",
     Icon = "swords",
@@ -7564,7 +7563,6 @@ local AutoLoadToggle = Tabs.Config:Toggle({
     end
 })
 
-ConfigTab:Space()
 
 local ConfigDropdown = Tabs.Config:Dropdown({
     Title = "Select Config",
@@ -7580,7 +7578,6 @@ local ConfigDropdown = Tabs.Config:Dropdown({
     end
 })
 
-Tabs.Config:Devider()
 
 Tabs.Config:Button({
     Title = "Save All",
