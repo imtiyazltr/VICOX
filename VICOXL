@@ -2175,7 +2175,7 @@ end)
 
 
 
-ConnectionsManager['auto_parry'] = RunService.PreSimulation:Connect(function()
+ConnectionsManager['auto_parry'] = RunService.PostSimulation:Connect(function()
     local auto_parry_enabled = Config.auto_parry
            
     if not auto_parry_enabled then
@@ -3109,7 +3109,7 @@ ConnectionsManager['visuals'] = RunService.Heartbeat:Connect(function()
     end
 
     -- Reset target counter tiap 5 detik
-    if tick() - lastResetTime >= 5 then
+    if tick() - lastResetTime >= 10 then
         targetCounters = {}
         selfParryCounter = 0
         lastResetTime = tick()
@@ -3144,7 +3144,7 @@ ConnectionsManager['visuals'] = RunService.Heartbeat:Connect(function()
                     WindUI:Notify({
                         Title = "ESP Alert",
                         Content = "You are the target!",
-                        Duration = 0.5,
+                        Duration = 0.05,
                     })
                     lastNotifyTime["self"] = tick()
                     selfParryCounter = selfParryCounter + 1
@@ -3157,7 +3157,7 @@ ConnectionsManager['visuals'] = RunService.Heartbeat:Connect(function()
                         WindUI:Notify({
                             Title = "ESP Warning",
                             Content = target .. " is targeting you!",
-                            Duration = 0.5,
+                            Duration = 0.05,
                         })
                         lastNotifyTime[target] = tick()
                     end
