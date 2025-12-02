@@ -27,6 +27,12 @@ if not game:IsLoaded() then
     game.Loaded:Wait()
 end
 
+print("Weeyyyy!")
+print("thanks for using my script user! i appreciate it. but dont blame me if this script not good")
+print("...")
+print("Reizo Sigma + NonChalant + Skibidi")
+wait(1)
+
 setfpscap(120)
 
 type functionInfo = {
@@ -1829,7 +1835,6 @@ function AutoParry:is_spam()
         return false
     end
 
-\
     return true
 end
 
