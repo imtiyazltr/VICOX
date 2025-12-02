@@ -937,6 +937,23 @@ local Window = WindUI:CreateWindow({
     },
 })
 
+local ConfigManager = Window.ConfigManager
+
+local CurrentConfigName = "VicoX_Default"
+
+
+Window.CurrentConfig = ConfigManager:Config(CurrentConfigName)
+
+
+if Window.CurrentConfig:Exists() then
+    Window.CurrentConfig:Load()
+end
+
+
+Window.CurrentConfig:SetAutoSave(true)  
+
+Window.CurrentConfig:SetAutoLoad(true)
+
 -- Custom Topbar Buttons
 Window:CreateTopbarButton("Discord", "message-square", function() setclipboard("https://discord.gg/pbUCMc8VFs") print("Discord link copied!") end, 990)
 Window:CreateTopbarButton("Toggle UI", "monitor", function() Window:ToggleTransparency(not WindUI:GetTransparency()) end, 988)
@@ -4557,6 +4574,7 @@ Tabs.Special:Section({ Title = "Plushie" })
 
 Tabs.Special:Toggle({
     Title = "Plushie",
+    Flag = "Plushie_SAVE",
     Icon = "repeat",
     Value = true,
     Callback = function(value)
@@ -4574,6 +4592,7 @@ Tabs.Special:Divider()
 
 Tabs.Special:Dropdown({
 	Title = "Plushie Select",
+    Flag = "PlushieSelect_SAVE",
 	Values = {"Miku", "SpongeBob", "Patrick", "Sonic", "Shion", "Kaito", "Reimu", "Len", "Bear", "Frieren"},
 	Value = "Miku",
 	Callback = function(option)
@@ -4591,6 +4610,7 @@ Tabs.Special:Section({ Title = "Skin Changer" })
 
 Tabs.Special:Toggle({
     Title = "Skin Changer",
+    Flag = "SkinChanger_SAVE",
     Icon = "sword",
     Value = false,
     Callback = function(value)
@@ -4619,6 +4639,7 @@ Tabs.Special:Divider()
 
 Tabs.Special:Input({
     Title = "Skin Name Sword (Case Sensitive)",
+    Flag = "SkinChangerName_SAVE",
     Icon = "edit",
     Placeholder = "Enter Sword Skin Name...",
     Value = "",
@@ -4652,6 +4673,7 @@ Tabs.Special:Section({ Title = "Music" })
 
 Tabs.Special:Toggle({
     Title = "Background Music",
+    Flag = "BackgroundMusic_SAVE",
     Icon = "music",
     Value = false,
     Callback = function(value)
@@ -4674,6 +4696,7 @@ Tabs.Special:Divider()
 -- Dropdown Pilih Lagu
 Tabs.Special:Dropdown({
     Title = "Select Song",
+    Flag = "BackgroundMusicSelectSong_SAVE",
     Icon = "list-music",
     Values = {
         "back it up", "Sweep", "Bounce", "Everybody Wants To Rule The World",
@@ -4700,6 +4723,7 @@ Tabs.Special:Dropdown({
 -- Checkbox Loop
 Tabs.Special:Toggle({
     Title = "Loop Song",
+    Flag = "BackgroundMusicLoop_SAVE",
     Icon = "repeat",
     Value = false,
     Callback = function(value)
@@ -4716,6 +4740,7 @@ Tabs.Special:Toggle({
 -- Slider Volume
 Tabs.Special:Slider({
     Title = "Volume",
+    Flag = "BackgroundMusicVolume_SAVE",
     Icon = "volume-high",   
     Value = { Min = 1, Max = 5, Default = 3 },
     Callback = function(value)
@@ -4750,6 +4775,7 @@ Tabs.Blatant:Section({ Title = "Main Auto Parry/Spam" })
 
 Tabs.Blatant:Toggle({
     Title = "Auto Parry",
+    Flag = "AutoParry_SAVE",
     Icon = "swords",
     Value = Config.auto_parry,    
     Callback = function(state)
@@ -4765,6 +4791,7 @@ Tabs.Blatant:Toggle({
 
 Tabs.Blatant:Toggle({
     Title = "Triggerbot Helper",
+    Flag = "TriggerBot_SAVE",
     Desc = "Trigger Bot And Check Respond Within Parry, Fast Check With Respond Range / Accuracy BOT, Please Turn On With AutoParry", 
     Icon = "sword",
     Value = Config.triggerbot,
@@ -4830,6 +4857,7 @@ Tabs.Blatant:Toggle({
 
 Tabs.Blatant:Toggle({
     Title = "Auto Ability",
+    Flag = "AutoAbility_SAVE",
     Value = false,
     Callback = function(state)
         AutoAbility.enabled = state
@@ -4847,6 +4875,7 @@ Tabs.Blatant:Divider()
 
 Tabs.Blatant:Slider({
      Title = "Spam Speed",    
+     Flag = "SpamSpeed_SAVE",
      Value = { Min = 1, Max = 100, Default = 2 },
      Callback = function(value)
         getgenv().speeddo = value
@@ -4861,6 +4890,7 @@ Tabs.Blatant:Slider({
 
 Tabs.Blatant:Dropdown({
 	Title = "Auto Parry Mode (Blatant Best)",
+    Flag = "AutoParryMode_SAVE",
 	Values = {"Legit", "Blatant"},
 	Value = "Blatant",
 	Callback = function(option)
@@ -4876,6 +4906,7 @@ Tabs.Blatant:Dropdown({
 
 Tabs.Blatant:Dropdown({
     Title = "Parry Method Fire (Please use Hook Methode! dont use Getgc because it pactched)",
+    Flag = "ParryMethodeFire_SAVE",
     Values = { "getgc", "Hook" },
     Value = "Hook",
     Callback = function(option)
@@ -4891,6 +4922,7 @@ Tabs.Blatant:Dropdown({
 
 Tabs.Blatant:Toggle({
     Title = "Manual Spam",
+    Flag = "ManualSpam_SAVE",
     Icon = "swords",
     Value = false,
     Callback = function(state)
@@ -4915,6 +4947,7 @@ Tabs.Blatant:Section({ Title = "Rotation Player" })
 
 Tabs.Blatant:Toggle({
     Title = "Rotation",
+    Flag = "Rotation_SAVE",
     Icon = "rotate-cw",
     Value = false,    
     Callback = function(state)
@@ -4932,6 +4965,7 @@ Tabs.Blatant:Divider()
 
 Tabs.Blatant:Slider({
     Title = "Acuity",
+    Flag = "RotationAcuity_SAVE",
     Icon = "sliders-horizontal",
     Value = { Min = 0, Max = 100, Default = 5 },
     Callback = function(value)
@@ -4949,6 +4983,7 @@ Tabs.Blatant:Section({ Title = "Curve Parry" })
 
 Tabs.Blatant:Dropdown({
     Title = "Curve Method",
+    Flag = "CurveMethodeParry_SAVE",
     Icon = "chevrons-up-down",
     Values = { "Linear", "Backwards", "Random", "Accelerated", "Right", "Left", "Up", "Down", "Normal", "FollowCamera", "Forward", "Circular" },
     Value = "Normal",
@@ -4967,6 +5002,7 @@ Tabs.Blatant:Section({ Title = "No Slow Mode" })
 
 Tabs.Blatant:Toggle({
     Title = "No Slow",
+    Flag = "NoSlow_SAVE",
     Icon = "zap",
     Value = false,
     Callback = function(state)
@@ -4992,6 +5028,7 @@ Tabs.Visuals:Section({ Title = "Effect" })
 
 Tabs.Visuals:Toggle({
     Title = "Self Effect",
+    Flag = "SelfEffect_SAVE",
     Icon = "sparkles",
     Value = true,
     Callback = function(state)
@@ -5082,6 +5119,7 @@ Tabs.Visuals:Toggle({
 
 Tabs.Visuals:Dropdown({    
     Title = "Select Self Effect",
+    Flag = "SelfEffectSelect_SAVE",
     Values = {
         "Magic Circle",
         "Smokey"       
@@ -5205,6 +5243,7 @@ Tabs.Visuals:Dropdown({
 
 Tabs.Visuals:Toggle({
     Title = "Kill Effect",
+    Flag = "KillEffect_SAVE",
     Icon = "bell",
     Value = false,
     Callback = function(state)
@@ -5220,6 +5259,7 @@ Tabs.Visuals:Toggle({
 
 Tabs.Visuals:Slider({
     Title = "Bell Scale",
+    Flag = "BellScale_SAVE",
     Icon = "sliders-horizontal",
     Value = { Min = 1, Max = 5, Default = 1 },
     Callback = function(value)
@@ -5235,6 +5275,7 @@ Tabs.Visuals:Slider({
 
 Tabs.Visuals:Dropdown({
     Title = "Kill Effect Animation",
+    Flag = "BellKillEffectAnimation_SAVE",
     Icon = "chevrons-up-down",
     Values = {"Linear", "Spiral", "Pulse"},
     Value = "Spiral",
@@ -5255,6 +5296,7 @@ Tabs.Visuals:Section({ Title = "Monitor Ball Visuals" })
 -- Add Visualizer Toggle to Visuals Tab
 Tabs.Visuals:Toggle({
     Title = "Visualizer Monitor (Ball)",
+    Flag = "VisualizerMonitorBall_SAVE",
     Icon = "eye",
     Value = true, -- Keep your default value
     Callback = function(state)
@@ -5350,6 +5392,7 @@ Tabs.Visuals:Section({ Title = "Visuals Rings 3D" })
 
 Tabs.Visuals:Toggle({
     Title = "Visual Ring",   
+     Flag = "VisualRing_SAVE",
     Value = false,
     Callback = function(state)
         Config.visual_ring = state
@@ -5365,6 +5408,7 @@ Tabs.Visuals:Section({ Title = "Visuals Effect" })
 
 Tabs.Visuals:Toggle({
     Title = "Visual ESP V1",
+    Flag = "VisualEspV1_SAVE",
     Value = true,
     Callback = function(state)
         Config.visuals_enabled = state
@@ -5380,6 +5424,7 @@ Tabs.Visuals:Section({ Title = "Indicator" })
 
 Tabs.Visuals:Toggle({
     Title = "Ball Direction Indicator",
+    Flag = "BallDirectionIndicator_SAVE",
     Value = true,
     Callback = function(state)
         getgenv().BallDirectionIndicator = state
@@ -5396,6 +5441,7 @@ Tabs.Visuals:Section({ Title = "Visualizer Range" })
 
 Tabs.Visuals:Toggle({
     Title = "Visualizer V2",
+    Flag = "VisualizerV2_SAVE",
     Icon = "rotate-cw",
     Value = false,    
     Callback = function(state)
@@ -5413,6 +5459,7 @@ Tabs.Visuals:Section({ Title = "Camera Lock" })
 
 Tabs.Visuals:Toggle({
     Title = "Camera Lock To Ball",
+    Flag = "CameraLockBall_SAVE",
     Value = false,
     Callback = function(state)
         cameraLocked = state
@@ -5459,6 +5506,7 @@ Tabs.Visuals:Divider()
 
 Tabs.Visuals:Dropdown({
     Title = "Camera View Mode",
+    Flag = "CameraViewMode_SAVE",
     Values = {"ThirdPerson", "FirstPerson", "TopDown", "SideView"},
     Value = "ThirdPerson",
     Multi = false,
@@ -5471,6 +5519,7 @@ Tabs.Visuals:Section({ Title = "Text Debug" })
 
 Tabs.Visuals:Toggle({
     Title = "Ball Text Debug",   
+    Flag = "BallTextDebug_SAVE",
     Value = Config.ball_text_enabled,
     Callback = function(state)
         Config.ball_text_enabled = state
@@ -5489,6 +5538,7 @@ Tabs.Visuals:Toggle({
 
 Tabs.Visuals:Toggle({
     Title = "Player Text Debug",   
+    Flag = "PlaterTextDebug_SAVE",
     Value = Config.player_text_enabled,
     Callback = function(state)
         Config.player_text_enabled = state
@@ -5509,6 +5559,7 @@ Tabs.Visuals:Section({ Title = "Trails", Icon = "sparkles" })
 
 Tabs.Visuals:Toggle({
     Title = "Ball Trail",
+    Flag = "BallTrail_SAVE",
     Icon = "sparkles",
     Value = false,
     Callback = function(state)
@@ -5529,6 +5580,7 @@ Tabs.Visuals:Toggle({
 
 Tabs.Visuals:Colorpicker({
     Title = "Ball Trail Color",
+    Flag = "BallTrailColor_SAVE",
     Icon = "palette",
     Value = Color3.fromRGB(255, 0, 0),
     Callback = function(color)
@@ -5544,6 +5596,7 @@ Tabs.Visuals:Colorpicker({
 
 Tabs.Visuals:Toggle({
     Title = "Player Trail",
+    Flag = "PlayerTrail_SAVE",
     Icon = "sparkles",
     Value = false,
     Callback = function(state)
@@ -5564,6 +5617,7 @@ Tabs.Visuals:Toggle({
 
 Tabs.Visuals:Colorpicker({
     Title = "Player Trail Color",
+    Flag = "PlayerTrailColor_SAVE",
     Icon = "palette",
     Value = Color3.fromRGB(0, 255, 255),
     Callback = function(color)
@@ -5581,6 +5635,7 @@ Tabs.Visuals:Divider()
 
 Tabs.Visuals:Toggle({
     Title = "Trail Particles",
+    Flag = "TrailParticles_SAVE",
     Icon = "sparkle",
     Value = false,
     Callback = function(state)
@@ -5596,6 +5651,7 @@ Tabs.Visuals:Toggle({
 
 Tabs.Visuals:Slider({
     Title = "Particle Rate",
+    Flag = "ParticleRate_SAVE",
     Icon = "sliders-horizontal",
     Value = { Min = 5, Max = 50, Default = 10 },
     Callback = function(value)
@@ -5611,6 +5667,7 @@ Tabs.Visuals:Slider({
 
 Tabs.Visuals:Dropdown({
     Title = "Trail Animation Type",
+    Flag = "TrailAnimationType_SAVE",
     Icon = "chevrons-up-down",
     Values = {"Static", "Pulse", "Flicker"},
     Value = "Pulse",
@@ -5628,6 +5685,7 @@ Tabs.Visuals:Dropdown({
 
 Tabs.Visuals:Dropdown({
     Title = "Trail Texture",
+    Flag = "TrailTexture_SAVE",
     Icon = "image",
     Values = {"None", "Spark", "Flame"},
     Value = "None",
@@ -5648,6 +5706,7 @@ Tabs.Visuals:Section({ Title = "No Rendering" })
 -- Visuals Tab
 Tabs.Visuals:Toggle({
     Title = "No Render",
+    Flag = "NoRender_SAVE",
     Icon = "eye-off",
     Value = false,
     Callback = function(state)
@@ -5663,6 +5722,7 @@ Tabs.Visuals:Toggle({
 
 Tabs.Visuals:Toggle({
     Title = "Smart No Render",
+    Flag = "SmartNoRender_SAVE",
     Icon = "brain",
     Value = false,
     Callback = function(state)
@@ -5680,6 +5740,7 @@ Tabs.Visuals:Section({ Title = "Sound Block" })
 
 Tabs.Visuals:Toggle({
     Title = "Parry Sound",
+    Flag = "ParrySound_SAVE",
     Icon = "music",
     Value = false,
     Callback = function(state)
@@ -5697,6 +5758,7 @@ Tabs.Visuals:Divider()
 
 Tabs.Visuals:Dropdown({
     Title = "Sound Type",
+    Flag = "SoundType_SAVE",
     Icon = "volume-2",
     Values = {'DC_15X','Neverlose','Minecraft','MinecraftHit2','TeamfortressBonk','TeamfortressBell',"Custom", "Medal", 
         "Fatality", 
@@ -5726,6 +5788,7 @@ Tabs.Visuals:Dropdown({
 
 Tabs.Visuals:Input({
     Title = "Custom Sound ID",
+    Flag = "SoundCustomId_SAVE",
     Icon = "audio-lines",
     Placeholder = "Enter sound id",
     Callback = function(text)
@@ -5751,6 +5814,7 @@ Tabs.Worlds:Section({ Title = "Night and Monday" })
 
 Tabs.Worlds:Toggle({
     Title = "Night Mode",
+    Flag = "NightMode_SAVE",
     Icon = "moon",
     Value = false,
     Callback = function(state)
@@ -5768,6 +5832,7 @@ Tabs.Worlds:Section({ Title = "Sky" })
 
 Tabs.Worlds:Toggle({
     Title = "Custom Sky",
+    Flag = "CustomSky_SAVE",
     Icon = "cloud",
     Value = false,
     Callback = function(value)
@@ -5807,6 +5872,7 @@ Tabs.Worlds:Divider()
 
 Tabs.Worlds:Dropdown({
     Title = "Select Sky",
+    Flag = "SkySelect_SAVE",
     Icon = "cloud-drizzle",
     Values = {
         "Default", "Vaporwave", "Redshift", "Desert", "DaBaby", "Minecraft",
@@ -5875,6 +5941,7 @@ Tabs.Misc:Section({ Title = "Ping Booster Select" })
 
 Tabs.Misc:Button({
     Title = "Load Ping Booster",
+    Flag = "LoadPingBooster_SAVE",
     Icon = "network-wired",
     Callback = function()
         local success, result = pcall(function()
@@ -5903,6 +5970,7 @@ Tabs.Misc:Section({ Title = "Auto Rewards" })
 
 Tabs.Misc:Toggle({
     Title = "Auto Rewards",
+    Flag = "AutoRewards_SAVE",
     Icon = "gift",
     Value = false,
     Callback = function(state)
@@ -5920,6 +5988,7 @@ Tabs.Misc:Section({ Title = "Quantum Arena" })
 
 Tabs.Misc:Toggle({
     Title = "Disable Quantum Effects",    
+    Flag = "DisableQuantumEffects_SAVE",
     Value = false,
     Callback = function(state)
         Config.disable_quantum_effects = state
@@ -5935,6 +6004,7 @@ Tabs.Misc:Section({ Title = "Announcer" })
 
 Tabs.Misc:Toggle({
     Title = "Custom Announcer",
+    Flag = "CustomAnnouncer_SAVE",
     Value = false,
     Callback = function(state)
         CustomAnnouncer.enabled = state
@@ -5959,6 +6029,7 @@ Tabs.Misc:Divider()
 
 Tabs.Misc:Input({
     Title = "Custom Announcer Text",
+    Flag = "CustomAnnouncerText_SAVE",
     Placeholder = "Enter custom announcer text...",
     Callback = function(text)
         CustomAnnouncer.custom_text = text
@@ -5978,6 +6049,7 @@ Tabs.Misc:Section({ Title = "Crate" })
 
 Tabs.Misc:Button({
     Title = "Open Sword Crate",
+    Flag = "OpenSwordCrate_SAVE",
     Icon = "package",
     Callback = function()
         local result = getSword()
@@ -6001,6 +6073,7 @@ Tabs.Misc:Button({
 
 Tabs.Misc:Button({
     Title = "Open Explosion Crate",
+    Flag = "OpenExplosionCrate_SAVE",
     Icon = "package",
     Callback = function()
         local result = getExplosion()
@@ -6026,6 +6099,7 @@ Tabs.Misc:Section({ Title = "Strafe Speed" })
 
 Tabs.Misc:Toggle({
     Title = "Strafe",
+    Flag = "Strafe_SAVE",
     Icon = "move",
     Value = false,
     Callback = function(state)
@@ -6042,9 +6116,10 @@ Tabs.Misc:Toggle({
 Tabs.Misc:Divider()
 
 Tabs.Misc:Slider({
-    Title = "Speed",
+    Title = "Strafe Speed",
+    Flag = "StrafeSpeed_SAVE",
     Icon = "gauge",
-    Value = { Min = 0, Max = 100, Default = 50 },
+    Value = { Min = 0, Max = 100, Default = 16 },
     Callback = function(value)
         getgenv().Config.strafe_speed = value
         WindUI:Notify({
@@ -6060,6 +6135,7 @@ Tabs.Misc:Section({ Title = "Fly Over" })
 
 Tabs.Misc:Toggle({
     Title = "Fly (mobile and PC work)",
+    Flag = "Fly_SAVE",
     Icon = "cloud",
     Value = false,
     Callback = function(state)
@@ -6331,6 +6407,7 @@ Tabs.Misc:Section({ Title = "Detect Mod" })
 
 Tabs.Misc:Toggle({
     Title = "Personnel Detector",
+    Flag = "PersonnelDetector_SAVE",
     Value = false,
     Callback = function(state)
         Config.personnel_detector = state
@@ -6344,6 +6421,7 @@ Tabs.Misc:Toggle({
 
 Tabs.Misc:Toggle({
     Title = "Auto Leave",
+    Flag = "AutoLeave_SAVE",
     Icon = "log-out",
     Value = false,
     Callback = function(state)
@@ -6361,6 +6439,7 @@ Tabs.Misc:Section({ Title = "Gravity World" })
 
 Tabs.Misc:Toggle({
     Title = "Gravity",
+    Flag = "Gravity_SAVE",
     Value = false,
     Callback = function(state)
         Config.gravity = state
@@ -6376,6 +6455,7 @@ Tabs.Misc:Divider()
 
 Tabs.Misc:Slider({
     Title = "Gravity Strength",
+    Flag = "GravityStrength_SAVE",
     Icon = "sliders-horizontal",
     Value = { Min = 0, Max = 100, Default = 50 },
     Callback = function(value)
@@ -6399,6 +6479,7 @@ Tabs.Players:Section({ Title = "Player Follow" })
 
 Tabs.Players:Toggle({
     Title = "Player Follow",
+    Flag = "PlayerFollow_SAVE",
     Value = false,
     Callback = function(state)
         Config.player_follow = state
@@ -6447,6 +6528,7 @@ Tabs.Players:Divider()
 local initialPlayerNames = PlayerFollow:getPlayerNames()
 Tabs.Players:Dropdown({
     Title = "Follow Target",
+    Flag = "FollowTarget_SAVE",
     Values = initialPlayerNames,
     Value = #initialPlayerNames > 0 and initialPlayerNames[1] or nil,
     Callback = function(value)
@@ -6464,6 +6546,7 @@ Tabs.Players:Section({ Title = "Cosmetics" })
 
 Tabs.Players:Toggle({
     Title = "Player Cosmetics (Headless & Korblox)",
+    Flag = "PlayerCosmestic_SAVE",
     Icon = "user-check",
     Value = false,
     Callback = function(value)
@@ -6630,6 +6713,7 @@ Tabs.Players:Section({ Title = "FOV Camera" })
 
 Tabs.Players:Toggle({
     Title = "Camera",
+    Flag = "CameraFOV_SAVE",
     Icon = "camera",
     Value = false,
     Callback = function(state)
@@ -6647,8 +6731,9 @@ Tabs.Players:Divider()
 
 Tabs.Players:Slider({
     Title = "Field Of View",
+    Flag = "FOV_SAVE",
     Icon = "maximize",
-    Value = { Min = 0, Max = 120, Default = 70 },
+    Value = { Min = 0, Max = 120, Default = 50 },
     Callback = function(value)
         Config.field_of_view = value
         WindUI:Notify({
@@ -6664,6 +6749,7 @@ Tabs.Players:Section({ Title = "Ability VB" })
 
 Tabs.Players:Toggle({
     Title = "Ability Vulnerability",
+    Flag = "AbilityVurnerability_SAVE",
     Icon = "shield-off",
     Value = false,
     Callback = function(state)
@@ -6681,6 +6767,7 @@ Tabs.Players:Divider()
 
 Tabs.Players:Dropdown({
     Title = "Mode",
+    Flag = "AbilityVurnerabilityMode_SAVE",
     Icon = "chevrons-up-down",
     Values = { "Continuity Zero", "Quad Jump", "Quasar" },
     Value = "Quad Jump",
@@ -6697,7 +6784,7 @@ Tabs.Players:Dropdown({
 
 Tabs.Farm:Paragraph({
     Title = "Farm!",
-    Desc = "Farm Farm farm just to get coin huh?",    
+    Desc = "Farm Farm farm just to get coin and kill huh?",    
     Color = "White"
 })
 
@@ -6706,6 +6793,7 @@ Tabs.Farm:Section({ Title = "Auto Requeue", Icon = "refresh" })
 local autoDuelsRequeueEnabled = false
 Tabs.Farm:Toggle({
     Title = "Auto Duels Requeue",
+    Flag = "AutoDuelsRequeue_SAVE",
     Desc = "Automatically requeues duels",
     Value = false,
     Callback = function(value)
@@ -6749,6 +6837,7 @@ local selectedQueue = "FFA"
 local autoRequeueEnabled = false
 Tabs.Farm:Toggle({
     Title = "Auto Ranked Requeue",
+    Flag = "AutoRankedRequeue_SAVE",
     Desc = "Automatically requeues Ranked",
     Value = false,
     Callback = function(value)
@@ -6799,6 +6888,7 @@ Tabs.Farm:Toggle({
 
 Tabs.Farm:Dropdown({
     Title = "Select Queue Type",
+    Flag = "SelectQueueType_SAVE",
     Values = { "FFA", "Duo" },
     Value = "FFA",
     Callback = function(selectedOption)
@@ -6816,6 +6906,7 @@ local autoLTMRequeueEnabled = false
 local validLTMPlaceId = 13772394625
 Tabs.Farm:Toggle({
     Title = "Auto LTM Requeue",
+    Flag = "AutoLTMRequeue_SAVE",
     Desc = "Automatically requeues LTM",
     Value = false,
     Callback = function(value)
@@ -6868,6 +6959,7 @@ Tabs.Farm:Section({ Title = "AI" })
 
 Tabs.Farm:Toggle({
     Title = "AI Play V1 (Rage)",
+    Flag = "AiPlayV1_SAVE",
     Icon = "bot",
     Value = Config.ai_play,
     Callback = function(state)
@@ -6899,7 +6991,8 @@ Tabs.Farm:Toggle({
 Tabs.Farm:Divider()
 
 Tabs.Farm:Dropdown({
-    Title = "AI Behavior",    
+    Title = "AI Behavior", 
+    Flag = "AiBehavior_SAVE",
     Values = {"AdvancedPro", "BallChaser", "AggressiveHunter"},
     Value = "AdvancedPro",
     Callback = function(value)
@@ -6918,6 +7011,7 @@ Tabs.Farm:Divider()
 
 Tabs.Farm:Toggle({
     Title = "Ai Play V2 (Completed)",
+    Flag = "AiPlayV2_SAVE",
     Value = Config.auto_play or false,
     Callback = function(state)
         Config.auto_play = state
@@ -6943,6 +7037,7 @@ Tabs.Farm:Toggle({
 
 Tabs.Farm:Toggle({
     Title = "Enable Jumping Ai",
+    Flag = "EnableJumpingAi_SAVE",
     Value = true,
     Callback = function(state)        
         AutoPlayModule.CONFIG.JUMPING_ENABLED = state
@@ -6958,7 +7053,8 @@ Tabs.Farm:Toggle({
 Tabs.Farm:Divider()
 
 Tabs.Farm:Slider({
-    Title = "Distance From Ball",    
+    Title = "Distance From Ball",   
+    Flag = "DistanceFromBall_SAVE",
     Value = { Min = 5, Max = 100, Default = 30 },    
     Callback = function(value)
         Config.default_distance = value
@@ -6973,7 +7069,8 @@ Tabs.Farm:Slider({
 })
 
 Tabs.Farm:Slider({
-    Title = "Speed Multiplier",    
+    Title = "Speed Multiplier",   
+    Flag = "SpeedMultiplier_SAVE",
     Value = { Min = 10, Max = 200, Default = 70 },   
     Callback = function(value)        
         AutoPlayModule.CONFIG.MULTIPLIER_THRESHOLD = value
@@ -6988,6 +7085,7 @@ Tabs.Farm:Slider({
 
 Tabs.Farm:Slider({
     Title = "Traversing",
+    Flag = "Transversing_SAVE",
     Min = 0,
     Max = 100,
     Value = { Min = 0, Max = 100, Default = 25 },
@@ -7004,6 +7102,7 @@ Tabs.Farm:Slider({
 
 Tabs.Farm:Slider({
     Title = "Direction",
+    Flag = "Direction_SAVE",
     Min = -1,
     Max = 1,
     Value = { Min = -1, Max = 1, Default = 1 },
@@ -7020,6 +7119,7 @@ Tabs.Farm:Slider({
 
 Tabs.Farm:Slider({
     Title = "Offset Factor",
+    Flag = "OffsetFactor_SAVE",
     Min = 0.1,
     Max = 1,
     Value = { Min = 0.1, Max = 1, Default = 0.7 },
@@ -7050,6 +7150,7 @@ Tabs.Farm:Slider({
 
 Tabs.Farm:Slider({
     Title = "Generation Threshold",
+    Flag = "GenerationThreshold_SAVE",
     Min = 0.1,
     Max = 0.5,
     Value = { Min = 0.1, Max = 0.5, Default = 0.25 },
@@ -7066,6 +7167,7 @@ Tabs.Farm:Slider({
 
 Tabs.Farm:Slider({
     Title = "Jump Chance",    
+    Flag = "JumpChance_SAVE",
     Value = { Min = 0, Max = 100, Default = 50 },
     Callback = function(value)        
         AutoPlayModule.CONFIG.JUMP_PERCENTAGE = value
@@ -7080,6 +7182,7 @@ Tabs.Farm:Slider({
 
 Tabs.Farm:Slider({
     Title = "Double Jump Chance",   
+    Flag = "DoubleJumpChance_SAVE",
     Value = { Min = 0, Max = 100, Default = 50 },
     Callback = function(value)       
         AutoPlayModule.CONFIG.DOUBLE_JUMP_PERCENTAGE = value
@@ -7096,6 +7199,7 @@ Tabs.Farm:Section({ Title = "Orbit Farm" })
 
 Tabs.Farm:Toggle({
     Title = "Auto Farm Orbit (V2)",
+    Flag = "AutoFarmOrbitV2_SAVE",
     Value = false,
     Callback = function(state)
         auto_farm_enabled = state
@@ -7173,6 +7277,7 @@ Tabs.Farm:Divider()
 
 Tabs.Farm:Dropdown({
     Title = "Auto Farm Type",
+    Flag = "AutoFarmType_SAVE",
     Values = {"UnderBall", "X Orbit", "Y Orbit", "Z Orbit", "Helix", "Figure8", "Spiral", "Random Orbit"},
     Value = "Random Orbit",
     Multi = false,
@@ -7183,6 +7288,7 @@ Tabs.Farm:Dropdown({
 
 Tabs.Farm:Slider({
     Title = "Orbit Speed",
+    Flag = "OrbitSpeed_SAVE",
     Value = { Min = 1, Max = 20, Default = 5 },
     Callback = function(value)
         auto_farm_orbit = value
@@ -7191,6 +7297,7 @@ Tabs.Farm:Slider({
 
 Tabs.Farm:Slider({
     Title = "Orbit Height",
+    Flag = "OrbitHeight_SAVE",
     Value = { Min = 0, Max = 50, Default = 10 },
     Callback = function(value)
         auto_farm_height = value
@@ -7199,6 +7306,7 @@ Tabs.Farm:Slider({
 
 Tabs.Farm:Slider({
     Title = "Orbit Radius",
+    Flag = "OrbitRadius_SAVE",
     Value = { Min = 5, Max = 50, Default = 20 },
     Callback = function(value)
         auto_farm_radius = value
@@ -7333,6 +7441,7 @@ end
 
 local themeDropdown = Tabs.Theme:Dropdown({
     Title = "Select Theme",
+    Flag = "AelectTheme_SAVE",
     Multi = false,
     AllowNone = false,
     Value = nil,
@@ -7372,6 +7481,7 @@ Tabs.Theme:Divider()
 
 Tabs.Theme:Input({
     Title = "Theme Name",
+    Flag = "ThemeName_SAVE",
     Icon = "type",
     Value = currentThemeName,
     Callback = function(name)
@@ -7387,6 +7497,7 @@ Tabs.Theme:Input({
 
 Tabs.Theme:Colorpicker({
     Title = "Accent Color",
+    Flag = "ThemeAccentColor_SAVE",
     Icon = "paintbrush",
     Default = Color3.fromHex(ThemeAccent),
     Callback = function(color)
@@ -7402,6 +7513,7 @@ Tabs.Theme:Colorpicker({
 
 Tabs.Theme:Colorpicker({
     Title = "Outline Color",
+    Flag = "ThemeOutlineColor_SAVE",
     Icon = "paintbrush",
     Default = Color3.fromHex(ThemeOutline),
     Callback = function(color)
@@ -7417,6 +7529,7 @@ Tabs.Theme:Colorpicker({
 
 Tabs.Theme:Colorpicker({
     Title = "Text Color",
+    Flag = "TextColor_SAVE",
     Icon = "paintbrush",
     Default = Color3.fromHex(ThemeText),
     Callback = function(color)
