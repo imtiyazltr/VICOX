@@ -1,4 +1,17 @@
-local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+local WindUI
+
+do
+    local ok, result = pcall(function()
+        return require("./src/Init")
+    end)
+    
+    if ok then
+        WindUI = result
+    else 
+        WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
+    end
+end
+
 
 -- Roblox Services
 local RobloxReplicatedStorage = cloneref(game:GetService('RobloxReplicatedStorage'))
@@ -2123,7 +2136,7 @@ end)
 
 
 
-RunService.Heartbeat:Connect(function() 
+ConnectionsManager['auto_parry'] = RunService.PreSimulation:Connect(function()
     local auto_parry_enabled = Config.auto_parry
            
     if not auto_parry_enabled then
@@ -2159,29 +2172,29 @@ RunService.Heartbeat:Connect(function()
     ball_properties.is_curved = AutoParry.is_curved()
     ball_properties.is_curveds = AutoParry.is_curveds()
     
+    
     if AutoParry.entity_properties.distance and AutoParry.entity_properties.distance >= 5 and AutoParry.entity_properties.distance <= 7 then
         ball_properties.is_curved = false
         ball_properties.is_curveds = false
     end
 
+    
     if Singularity_Cape then
         AutoParry.ball.properties.auto_spam = false
         AutoParry.ball.properties.parries = 0
         return 
     end
 
-    local ping_threshold = math.clamp(Player.Entity.properties.ping / 10, 10, 18)
-    local ping_thresholds = math.clamp(Player.Entity.properties.ping / 10, 10, 18)
+    local ping_threshold = math.clamp(Player.Entity.properties.ping / 10, 5, 18)
+    local ping_thresholds = math.clamp(Player.Entity.properties.ping / 10, 2, 18)
 
     local player_properties = Player.Entity.properties
-    
     
     local baseMoveAmount = 0.5
     local moveAmount = baseMoveAmount * (1 / (AutoParry.entity_properties.distance + 0.01)) * 1000
 
-    
     local spam_accuracity = math.min(moveAmount + (ball_properties.maximum_speed / 8.4), (150 + moveAmount))
-    local parry_accuracity = (ping_thresholds + ball_properties.maximum_speed) * 1.55 / 11.4 + ping_threshold
+    local parry_accuracity = ping_threshold + ball_properties.maximum_speed / 11.2 + ping_threshold
 
     if player_properties.is_moving then
         parry_accuracity *= 1.1       
@@ -2191,13 +2204,12 @@ RunService.Heartbeat:Connect(function()
         parry_accuracity *= (1 / 1.05)        
     end
     
-    if Player.Entity.properties.ping >= 270 then
+    if Player.Entity.properties.ping >= 290 then
         parry_accuracity = parry_accuracity * (1 + (Player.Entity.properties.ping / 500))
     end
 
-    
-    ball_properties.spam_range = (ping_thresholds + ball_properties.speed) * 1.26 / 3.14    
-    ball_properties.parry_range = (ping_threshold + ball_properties.speed) * 2 / math.pi
+    ball_properties.spam_range = (ping_thresholds + ball_properties.speed) * 1.26 / 3.14     
+    ball_properties.parry_range = ping_threshold + ball_properties.speed / math.pi
 
     if Player.Entity.properties.sword == 'Titan Blade' then
         ball_properties.parry_range += 11
@@ -2320,17 +2332,21 @@ RunService.Heartbeat:Connect(function()
     lastPosition = LocalPlayer.Character.PrimaryPart.Position 
     ball_properties.last_ball_pos = ball_properties.position
 
-    AutoParry:PerformParry()
-    
-    task.spawn(function()
-		repeat
-			RunService.PreSimulation:Wait(0)
-		until 
-			(tick() - ball_properties.last_hit) > 2 - (ping_threshold / 100)
+    if not ball_properties.auto_spam then
+       task.spawn(function() AutoParry:PerformParry() end) 
+    return
+   end
 
-		ball_properties.cooldown = false
-	end)
+    task.spawn(function()
+        repeat
+            RunService.PreSimulation:Wait(0)
+        until 
+            (tick() - ball_properties.last_hit) > (1 - math.clamp(ping_threshold / 100, 0.1, 0.6))
+
+        ball_properties.cooldown = false
+    end)
 end)
+
 
 
 
