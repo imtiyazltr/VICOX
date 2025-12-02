@@ -934,16 +934,41 @@ local Window = WindUI:CreateWindow({
     },
 })
 
-local Config = Window.ConfigManager:GetConfig("VicoX_Default")
+local ConfigManager = Window.ConfigManager
 
-if Window.ConfigManager:ConfigExists("VicoX_Default") then
-    Config:Load()
+local ConfigName = "VicoX_Default"
+
+
+local CurrentConfig = ConfigManager:Config(ConfigName)
+Window.CurrentConfig = CurrentConfig
+
+
+local AllConfigs = ConfigManager:AllConfigs()
+local ConfigExists = table.find(AllConfigs, ConfigName) ~= nil
+
+if ConfigExists then
+    CurrentConfig:Load()
+    WindUI:Notify({  
+        Title = "Config Loaded",
+        Content = "Auto-loaded: " .. ConfigName,
+        Duration = 3,
+        Icon = "refresh-cw"
+    })
 end
 
-Config:SetAutoSave(true)
-Config:SetAutoLoad(true)
+task.spawn(function()
+    for flag, value in pairs(CurrentConfig.Flags) do 
+        if Config[flag] ~= nil then
+            Config[flag] = value
+        end
+    end
+end)
 
-Window.CurrentConfig = Config
+CurrentConfig:SetAutoSave(true)
+
+CurrentConfig:SetAutoLoad(true)
+
+
 
 
 -- Custom Open Button
@@ -7414,6 +7439,83 @@ Tabs.Settings:Button({
     end
 })
 
+local ConfigSection = Tabs.Config:Section({ Title = "Config Manager" })
+
+local ConfigNameInput = ConfigSection:Input({
+    Title = "Config Name",
+    Default = ConfigName,  -- Default dari atas
+    Callback = function(value)
+        ConfigName = value
+        CurrentConfig = ConfigManager:Config(ConfigName)
+        Window.CurrentConfig = CurrentConfig
+    end
+})
+
+ConfigSection:Space()
+
+local AutoLoadToggle = ConfigSection:Toggle({
+    Title = "Auto Load on Inject",
+    Default = CurrentConfig.AutoLoad or false,
+    Callback = function(v)
+        CurrentConfig:SetAutoLoad(v)
+    end
+})
+
+ConfigSection:Space()
+
+local AllConfigs = ConfigManager:AllConfigs()
+local ConfigDropdown = ConfigSection:Dropdown({
+    Title = "Select Config",
+    Values = AllConfigs,
+    Default = ConfigName,
+    Callback = function(value)
+        ConfigName = value
+        ConfigNameInput:Set(value)
+        CurrentConfig = ConfigManager:Config(ConfigName)
+        Window.CurrentConfig = CurrentConfig
+        AutoLoadToggle:Set(CurrentConfig.AutoLoad or false)
+    end
+})
+
+ConfigSection:Space()
+
+ConfigSection:Button({
+    Title = "Save Config",
+    Callback = function()
+        if CurrentConfig:Save() then
+            WindUI:Notify({
+                Title = "Saved",
+                Content = "Config '" .. ConfigName .. "' saved!",
+                Icon = "check"
+            })
+            AllConfigs = ConfigManager:AllConfigs()
+            ConfigDropdown:Refresh(AllConfigs)  -- Update dropdown
+        end
+    end
+})
+
+ConfigSection:Button({
+    Title = "Load Config",
+    Callback = function()
+        if CurrentConfig:Load() then
+            WindUI:Notify({
+                Title = "Loaded",
+                Content = "Config '" .. ConfigName .. "' loaded!",
+                Icon = "refresh-cw"
+            })
+        end
+    end
+})
+
+ConfigSection:Space()
+
+ConfigSection:Button({
+    Title = "Print All AutoLoad Configs",
+    Callback = function()
+        print("AutoLoad Configs:", ConfigManager:GetAutoLoadConfigs())
+    end
+})
+
 Tabs.Theme:Section({ Title = "Custom Theme", Icon = "palette" })
 
 local currentThemeName = "BladeDark"
@@ -7530,7 +7632,7 @@ Tabs.Theme:Colorpicker({
     end
 })
 
-local InviteCode = "pbUCMc8VFs"
+local InviteCode = "wdMvehhA62"
 local DiscordAPI = "https://discord.com/api/v10/invites/" .. InviteCode .. "?with_counts=true&with_expiration=true"
 
 local Response = game:GetService("HttpService"):JSONDecode(WindUI.Creator.Request({
