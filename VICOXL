@@ -2176,7 +2176,7 @@ end)
 
 
 
-ConnectionsManager['auto_parry'] = RunService.PostSimulation:Connect(function()
+ConnectionsManager['auto_parry'] = RunService.Heartbeat:Connect(function()
     local auto_parry_enabled = Config.auto_parry
            
     if not auto_parry_enabled then
