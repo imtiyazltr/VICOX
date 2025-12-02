@@ -38,24 +38,21 @@ if not game:IsLoaded() then
     game.Loaded:Wait()
 end
 
+local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/RudertTiktok/VICLIB/refs/heads/main/VICNOTIFY", true))()
+
 local success, result = pcall(function()
     loadstring(game:GetObjects("rbxassetid://15900013841")[1].Source)()
 end)
 if not success then
-    WindUI:Notify({
-        Title = "Anti-Cheat Bypass",
-        Content = "Failed to load bypass: " .. tostring(result),
-        Duration = 4,
-        Icon = "rotate-cw"
-    })
+    Notification.new("error", "Error", "Bypass Not Successfully Loaded!?", true, 4)
 else
-    WindUI:Notify({
-        Title = "Anti-Cheat Bypass",
-        Content = "Bypass loaded successfully!",
-        Duration = 4,
-        Icon = "rotate-cw"
-    })
+    Notification.new("success", "Success", "Bypass Successfully Loaded!", true, 4)
 end
+
+Notification.new("info", "ATTENTION", "Yo User! Thanks for using my Script! ", true, 3)
+Notification.new("info", "ATTENTION", "dont expect this script good or not. ", true, 3)
+Notification.new("info", "ATTENTION", "By Rudert (SOLO DEV)", true, 2)
+Notification.new("info", "ATTENTION", "Reizo is Sigma + NonChalant + Charm + Nigger", true, 2)
 
 setfpscap(120)
 
