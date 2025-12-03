@@ -19,7 +19,7 @@ local Players = game:GetService('Players')
 local Debris = game:GetService('Debris')
 local Stats = game:GetService('Stats')
 local CollectionService = game:GetService("CollectionService")
-local VirtualInputManager = cloneref(game:GetService("VirtualInputManager")
+local VirtualInputManager = game:GetService("VirtualInputManager")
 local Workspace = game:GetService('Workspace')
 local ContentProvider = game:GetService("ContentProvider")
 
@@ -42,8 +42,8 @@ wait(1)
 
 Notification.new("info", "ATTENTION", "Yo User! Thanks for using my Script! ", true, 3)
 Notification.new("info", "ATTENTION", "dont expect this script good or not. ", true, 3)
-Notification.new("info", "ATTENTION", "By Rudert (SOLO DEV)", true, 4)
-Notification.new("info", "ATTENTION", "Reizo is Sigma + NonChalant + Charm + Nigger", true, 4)
+Notification.new("info", "ATTENTION", "By Rudert (SOLO DEV)", true, 4.5)
+Notification.new("info", "ATTENTION", "Reizo is Sigma + NonChalant + Charm + Nigger", true, 4.5)
 
 setfpscap(120)
 
