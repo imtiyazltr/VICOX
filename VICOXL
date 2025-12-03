@@ -19,7 +19,7 @@ local Players = game:GetService('Players')
 local Debris = game:GetService('Debris')
 local Stats = game:GetService('Stats')
 local CollectionService = game:GetService("CollectionService")
-local VirtualInputManager = cloneref(game:GetService("VirtualInputManager")
+local VirtualInputManager = game:GetService("VirtualInputManager")
 local Workspace = game:GetService('Workspace')
 local ContentProvider = game:GetService("ContentProvider")
 
