@@ -901,9 +901,7 @@ local Window = WindUI:CreateWindow({
     Folder = "VicoXAmbatublow",
     Size = UDim2.fromOffset(350, 350),
     Transparent = true,
-    Theme = "Dark",    
-    IconSize = 22*2,
-    NewElements = true,
+    Theme = "Dark",
     User = {
         Enabled = true,
         Callback = function() print("clicked") end,
@@ -911,12 +909,11 @@ local Window = WindUI:CreateWindow({
     },
     SideBarWidth = 200,
     HideSearchBar = false, -- hides searchbar
-    ScrollBarEnabled = true, -- enables scrollbar   
-    
+    ScrollBarEnabled = true, -- enables scrollbar    
     
     KeySystem = {
-        Key = { "Testing-You", "OnlyOwnerWhoKnows" },
-        Note = "Key Is = Testing-You. Don't Worry Just.. Put it And Play As You Want.",
+        Key = { "VicoXMember", "OnlyOwnerWhoKnows" },
+        Note = "Key System Only Those Who Know. \n\nJoin Discord VicoX To Get Key",
         Thumbnail = {
         Image = "rbxassetid://18220445082",
             Title = "#BladeBall \n\n#VicoXOnTop"
