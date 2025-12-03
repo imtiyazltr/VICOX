@@ -901,7 +901,9 @@ local Window = WindUI:CreateWindow({
     Folder = "VicoXAmbatublow",
     Size = UDim2.fromOffset(350, 350),
     Transparent = true,
-    Theme = "Dark",
+    Theme = "Dark",    
+    IconSize = 22*2,
+    NewElements = true,
     User = {
         Enabled = true,
         Callback = function() print("clicked") end,
@@ -909,7 +911,8 @@ local Window = WindUI:CreateWindow({
     },
     SideBarWidth = 200,
     HideSearchBar = false, -- hides searchbar
-    ScrollBarEnabled = true, -- enables scrollbar    
+    ScrollBarEnabled = true, -- enables scrollbar   
+    
     
     KeySystem = {
         Key = { "Testing-You", "OnlyOwnerWhoKnows" },
@@ -922,6 +925,12 @@ local Window = WindUI:CreateWindow({
         SaveKey = true,
     },
 })
+
+    Window:Tag({
+        Title = "v" .. WindUI.Version,
+        Icon = "github",
+        Color = Color3.fromHex("#1c1c1c")
+    })
 
 
 local ConfigManager = Window.ConfigManager
@@ -973,9 +982,13 @@ end
 Window:EditOpenButton({
     Title = "VicoX",
     Icon = "swords",
-    CornerRadius = UDim.new(0, 16),
+    CornerRadius = UDim.new(1,0),
     StrokeThickness = 2,
-    Color = ColorSequence.new(Color3.fromHex("#FF0000"), Color3.fromHex("#FFFF00")),
+    Color = ColorSequence.new( 
+            Color3.fromHex("#30FF6A"), 
+            Color3.fromHex("#e7ff2f")
+        )
+    OnlyMobile = false,
     Draggable = true,
 })
 
@@ -2163,7 +2176,7 @@ end)
 
 
 
-ConnectionsManager['auto_parry'] = RunService.PostSimulation:Connect(function()
+ConnectionsManager['auto_parry'] = RunService.Hearbeat:Connect(function()
     local auto_parry_enabled = Config.auto_parry
            
     if not auto_parry_enabled then
