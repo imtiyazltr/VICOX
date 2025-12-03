@@ -926,12 +926,6 @@ local Window = WindUI:CreateWindow({
     },
 })
 
-    Window:Tag({
-        Title = "v" .. WindUI.Version,
-        Icon = "github",
-        Color = Color3.fromHex("#1c1c1c")
-    })
-
 
 local ConfigManager = Window.ConfigManager
 local ConfigName = "VicoX_Default"
