@@ -1,34 +1,23 @@
-local WindUI
+local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
 
-do
-    local ok, result = pcall(function()
-        return require("./src/Init")
-    end)
-    
-    if ok then
-        WindUI = result
-    else 
-        WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
-    end
-end
 
 
 -- Roblox Services
-local RobloxReplicatedStorage = cloneref(game:GetService('RobloxReplicatedStorage'))
-local RbxAnalyticsService = cloneref(game:GetService('RbxAnalyticsService'))
-local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
-local UserInputService = cloneref(game:GetService('UserInputService'))
-local NetworkClient = cloneref(game:GetService("NetworkClient"))
-local TweenService = cloneref(game:GetService('TweenService'))
-local VirtualUser = cloneref(game:GetService('VirtualUser'))
-local HttpService = cloneref(game:GetService('HttpService'))
-local RunService = cloneref(game:GetService('RunService'))
-local LogService = cloneref(game:GetService('LogService'))
-local Lighting = cloneref(game:GetService('Lighting'))
-local CoreGui = cloneref(game:GetService('CoreGui'))
-local Players = cloneref(game:GetService('Players'))
-local Debris = cloneref(game:GetService('Debris'))
-local Stats = cloneref(game:GetService('Stats'))
+local RobloxReplicatedStorage = game:GetService('RobloxReplicatedStorage')
+local RbxAnalyticsService = game:GetService('RbxAnalyticsService')
+local ReplicatedStorage = game:GetService('ReplicatedStorage')
+local UserInputService = game:GetService('UserInputService')
+local NetworkClient = game:GetService("NetworkClient")
+local TweenService = game:GetService('TweenService')
+local VirtualUser = game:GetService('VirtualUser')
+local HttpService = game:GetService('HttpService')
+local RunService = game:GetService('RunService')
+local LogService = game:GetService('LogService')
+local Lighting = game:GetService('Lighting')
+local CoreGui = game:GetService('CoreGui')
+local Players = game:GetService('Players')
+local Debris = game:GetService('Debris')
+local Stats = game:GetService('Stats')
 local CollectionService = game:GetService("CollectionService")
 local VirtualInputManager = cloneref(game:GetService("VirtualInputManager"))
 local Workspace = cloneref(game:GetService('Workspace'))
