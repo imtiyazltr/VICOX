@@ -2163,7 +2163,7 @@ end)
 
 
 
-ConnectionsManager['auto_parry'] = RunService.PostSimulation:Connect(function()
+ConnectionsManager['auto_parry'] = RunService.Hearbeat:Connect(function()
     local auto_parry_enabled = Config.auto_parry
            
     if not auto_parry_enabled then
@@ -2371,7 +2371,7 @@ ConnectionsManager['auto_parry'] = RunService.PostSimulation:Connect(function()
         repeat
             RunService.PreSimulation:Wait(0)
         until 
-            (tick() - ball_properties.last_hit) > (2 - math.clamp(ping_threshold / 100, 0.1, 0.6))
+            (tick() - ball_properties.last_hit) > (2 - math.clamp(ping_threshold / 100, 0.18, 0.89)
 
         ball_properties.cooldown = false
     end)
