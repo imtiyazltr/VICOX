@@ -42,8 +42,8 @@ wait(1)
 
 Notification.new("info", "ATTENTION", "Yo User! Thanks for using my Script! ", true, 3)
 Notification.new("info", "ATTENTION", "dont expect this script good or not. ", true, 3)
-Notification.new("info", "ATTENTION", "By Rudert (SOLO DEV)", true, 3.5)
-Notification.new("info", "ATTENTION", "Reizo is Sigma + NonChalant + Charm + Nigger", true, 3.5)
+Notification.new("info", "ATTENTION", "By Rudert (SOLO DEV)", true, 4)
+Notification.new("info", "ATTENTION", "Reizo is Sigma + NonChalant + Charm + Nigger", true, 4)
 
 setfpscap(120)
 
