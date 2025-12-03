@@ -2164,7 +2164,7 @@ end)
 
 
 
-ConnectionsManager['auto_parry'] = RunService.Heartbeat:Connect(function()
+ConnectionsManager['auto_parry'] = RunService.PreSimulation:Connect(function()
     local auto_parry_enabled = Config.auto_parry
            
     if not auto_parry_enabled then
@@ -2213,7 +2213,7 @@ ConnectionsManager['auto_parry'] = RunService.Heartbeat:Connect(function()
         return 
     end
 
-    local ping_threshold = math.clamp(Player.Entity.properties.ping / 10, 5, 18)
+    local ping_threshold = math.clamp(Player.Entity.properties.ping / 10, 10, math.min(16, Player.Entity.properties.ping / 5))
     local ping_thresholds = math.clamp(Player.Entity.properties.ping / 10, 2, 18)
 
     local player_properties = Player.Entity.properties
@@ -2221,8 +2221,8 @@ ConnectionsManager['auto_parry'] = RunService.Heartbeat:Connect(function()
     local baseMoveAmount = 0.5
     local moveAmount = baseMoveAmount * (1 / (AutoParry.entity_properties.distance + 0.01)) * 1000
 
-    local spam_accuracity = math.min(moveAmount + (ball_properties.maximum_speed / 8.4), (150 + moveAmount))
-    local parry_accuracity = ping_threshold + ball_properties.maximum_speed / 11.2 + ping_threshold
+    local spam_accuracity = math.min(moveAmount + (ball_properties.maximum_speed / 7), (150 + moveAmount))
+    local parry_accuracity = ball_properties.maximum_speed / 11.5 + ping_threshold
 
     if player_properties.is_moving then
         parry_accuracity *= 1.1       
@@ -2236,9 +2236,12 @@ ConnectionsManager['auto_parry'] = RunService.Heartbeat:Connect(function()
         parry_accuracity = parry_accuracity * (1 + (Player.Entity.properties.ping / 500))
     end
 
-    ball_properties.spam_range = (ping_thresholds + ball_properties.speed) * 1.26 / 3.14     
+   
+    
+    ball_properties.spam_range = ping_threshold + ball_properties.speed / 2
     ball_properties.parry_range = ping_threshold + ball_properties.speed / math.pi
 
+    
     if Player.Entity.properties.sword == 'Titan Blade' then
         ball_properties.parry_range += 11
         ball_properties.spam_range += 2
@@ -6178,13 +6181,12 @@ Tabs.Misc:Toggle({
 Tabs.Misc:Divider()
 
 Tabs.Misc:Slider({
-    Title = "Strafe Speed",
-    Flag = "StrafeSpeed_SAVE",
+    Title = "Strafe Speed",    
     Icon = "gauge",
     Value = { Min = 0, Max = 100, Default = 16 },
     Callback = function(value)
         getgenv().Config.strafe_speed = value
-        SaveConfig()
+        Config.strafe_speed = value        
         WindUI:Notify({
             Title = "Strafe Speed",
             Content = "Strafe Speed set to " .. value,
@@ -6798,13 +6800,12 @@ Tabs.Players:Toggle({
 Tabs.Players:Divider()
 
 Tabs.Players:Slider({
-    Title = "Field Of View",
-    Flag = "FOV_SAVE",
+    Title = "Field Of View",    
     Icon = "maximize",
     Value = { Min = 0, Max = 120, Default = 50 },
     Callback = function(value)
         Config.field_of_view = value
-        SaveConfig()
+        getgenv().Config.field_of_view = value
         WindUI:Notify({
             Title = "Field Of View",
             Content = "Field Of View set to " .. value,
