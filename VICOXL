@@ -543,7 +543,6 @@ local RunTime = workspace.Runtime
 local Alive = workspace.Alive
 local Dead = workspace.Dead
 
--- AutoParry and Player data structures
 local AutoParry = {
     ball = nil,
     target = nil,
@@ -1518,13 +1517,13 @@ function AutoParry.is_curved()
 	local direction_difference = (accurate_direction - ball_properties.velocity).Unit
 	local accurate_dot = ball_properties.direction:Dot(direction_difference)
 	local dot_difference = ball_properties.dot - accurate_dot
-	-- Mengurangi dot_threshold untuk mempermudah deteksi kurva
-	local dot_threshold = 0.4 - player_ping / 1500 -- Dari 0.5 - player_ping/1000 ke 0.4 - player_ping/1500
+	
+	local dot_threshold = 0.4 - player_ping / 1500 
 
 	local reach_time = ball_properties.distance / ball_properties.maximum_speed - (player_ping / 1000)
 	local enough_speed = ball_properties.maximum_speed > 100
 
-	-- Mengurangi ball_distance_threshold untuk deteksi lebih agresif
+	
 	local ball_distance_threshold = 12 - math.min(ball_properties.distance / 1000, 12) + angle_threshold + speed_threshold -- Dari 15 ke 12
 	
 	if enough_speed and reach_time > player_ping / 10 then
@@ -1539,13 +1538,13 @@ function AutoParry.is_curved()
 		return true
 	end
 
-	-- Mengurangi lerp_radians untuk deteksi perubahan kecil
+	
 	if ball_properties.lerp_radians < 0.015 then 
 		ball_properties.last_curve_position = ball_properties.position
 		ball_properties.last_warping = tick() 
 	end
 
-	-- Mengurangi waktu last_warping untuk respons lebih cepat
+	
 	if (tick() - ball_properties.last_warping) < (reach_time / 2) then
 		return true
 	end
@@ -1633,8 +1632,8 @@ function AutoParry.is_curveds()
     local toBall = (LocalPlayer.Character.PrimaryPart.Position - ball.Position).Unit
     local dotVal = toBall:Dot(ballDir)
 
-    -- Meningkatkan batas dotVal untuk deteksi lebih mudah
-    if dotVal >= 0.98 then -- Dari 0.97 ke 0.98
+    
+    if dotVal >= 0.98 then 
         return false
     end
 
@@ -1642,10 +1641,10 @@ function AutoParry.is_curveds()
     local distance = ball_properties.distance or (LocalPlayer.Character.PrimaryPart.Position - ball.Position).Magnitude
     local reachTime = distance / math.max(speed, 1) - ping
 
-    -- Mengurangi speedThreshold dan angleThreshold
+    
     local speedThreshold = linear_predict(5, 25, math.min(speed / 1000, 1)) -- Dari 7,30 ke 5,25
     local angleThreshold = 25 * math.max(dotVal, 0) -- Dari 30 ke 25
-    -- Mengurangi dotThreshold
+    
     local dotThreshold = linear_predict(0.15, 0.35, math.min(ping, 1)) - ping 
     local ballDistanceThreshold = 8 - math.min(distance / 1000, 8) + speedThreshold + angleThreshold
 
@@ -2164,7 +2163,7 @@ end)
 
 
 
-ConnectionsManager['auto_parry'] = RunService.PreSimulation:Connect(function()
+ConnectionsManager['auto_parry'] = RunService.PostSimulation:Connect(function()
     local auto_parry_enabled = Config.auto_parry
            
     if not auto_parry_enabled then
